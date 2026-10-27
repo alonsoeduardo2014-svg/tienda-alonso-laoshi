@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Instituto Alonso Laoshi · Aplicaciones para aprender chino</title>
+<meta name="description" content="Aplicaciones para aprender chino mandarín en español: traductor de audio con pinyin, orden de trazos y mapa del mundo en chino. Empieza gratis.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@500;700;900&family=Figtree:wght@400;500;600;700&family=Noto+Serif+SC:wght@600;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --laca:#8E1616;        /* rojo laca */
+  --laca-osc:#5E0C0E;
+  --bermellon:#C8281E;   /* rojo sello */
+  --oro:#D4A64A;
+  --oro-claro:#F0D38C;
+  --tinta:#22140F;
+  --tinta-2:#5B4A41;
+  --arroz:#FFFCF6;       /* papel de arroz */
+  --seda:#F5ECDD;
+  --linea:#E8D9BF;
+  --jade:#2E7D5B;
+  --ancho:1120px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--arroz);color:var(--tinta);font:17px/1.6 "Figtree",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.han{font-family:"Noto Serif SC","Songti SC","SimSun",serif}
+h1,h2,h3{font-family:"Zen Old Mincho","Noto Serif SC",serif;line-height:1.15;margin:0;letter-spacing:-.005em}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--oro);outline-offset:3px;border-radius:6px}
+.envoltura{max-width:var(--ancho);margin:0 auto;padding:0 20px}
+
+/* ---------- barra ---------- */
+.barra{position:sticky;top:0;z-index:30;background:rgba(94,12,14,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(212,166,74,.35)}
+.barra .envoltura{display:flex;align-items:center;gap:14px;height:64px}
+.marca{display:flex;align-items:center;gap:11px;text-decoration:none;color:#fff}
+.sello-mini{width:38px;height:38px;border-radius:7px;background:var(--bermellon);color:#fff;display:grid;place-items:center;font-size:15px;line-height:1.05;text-align:center;box-shadow:inset 0 0 0 2px rgba(255,255,255,.28);font-weight:900}
+.marca b{font-family:"Zen Old Mincho",serif;font-size:18px;font-weight:700;display:block;line-height:1.1}
+.marca span{font-size:12.5px;color:var(--oro-claro)}
+.menu{margin-left:auto;display:flex;gap:4px}
+.menu a{color:#F7E7C4;text-decoration:none;font-weight:600;font-size:15px;padding:8px 12px;border-radius:8px}
+.menu a:hover{background:rgba(255,255,255,.08);color:#fff}
+@media (max-width:760px){.menu{display:none}.marca span{display:none}}
+
+/* ---------- portada ---------- */
+.portada{position:relative;overflow:hidden;color:#fff;
+  background:
+    radial-gradient(120% 90% at 85% 40%, #B21E1E 0%, transparent 60%),
+    linear-gradient(160deg,var(--laca) 0%,var(--laca-osc) 100%)}
+.portada::before{ /* celosía de ventana china */
+  content:"";position:absolute;inset:0;opacity:.13;pointer-events:none;
+  background-image:
+    linear-gradient(var(--oro) 2px,transparent 2px),
+    linear-gradient(90deg,var(--oro) 2px,transparent 2px),
+    linear-gradient(45deg,transparent 46%,var(--oro) 46%,var(--oro) 54%,transparent 54%);
+  background-size:72px 72px,72px 72px,36px 36px;
+  mask-image:linear-gradient(90deg,transparent 0%,#000 55%,#000 100%);
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 55%,#000 100%)}
+.portada .envoltura{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center;padding-top:76px;padding-bottom:88px}
+.portada h1{font-size:clamp(36px,5.6vw,62px);font-weight:900;color:#fff;max-width:16ch}
+.portada .bajada{font-size:clamp(17px,1.9vw,20px);color:#F7E2D4;max-width:34em;margin:20px 0 30px}
+.acciones{display:flex;flex-wrap:wrap;gap:12px}
+.boton{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:999px;padding:14px 26px;font-weight:700;font-size:16.5px;text-decoration:none;cursor:pointer;border:0;font-family:inherit;transition:background .15s, transform .08s}
+.boton:active{transform:scale(.98)}
+.boton.oro{background:linear-gradient(180deg,#E7BE62,#C9952E);color:#3A0B08;box-shadow:0 6px 18px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.45)}
+.boton.oro:hover{background:linear-gradient(180deg,#F0CB72,#D4A03A)}
+.boton.linea{background:transparent;color:#fff;box-shadow:inset 0 0 0 2px rgba(240,211,140,.7)}
+.boton.linea:hover{background:rgba(255,255,255,.08)}
+.boton svg{width:20px;height:20px;flex:none}
+
+.escena{position:relative;justify-self:center;width:min(380px,82vw);aspect-ratio:1}
+.escena .cuadro{position:absolute;inset:0;border:2px solid rgba(240,211,140,.55);border-radius:6px;
+  background:
+    linear-gradient(rgba(240,211,140,.35),rgba(240,211,140,.35)) center/100% 1px no-repeat,
+    linear-gradient(rgba(240,211,140,.35),rgba(240,211,140,.35)) center/1px 100% no-repeat}
+.escena .cuadro::before,.escena .cuadro::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(45deg,transparent calc(50% - .5px),rgba(240,211,140,.22) calc(50% - .5px),rgba(240,211,140,.22) calc(50% + .5px),transparent calc(50% + .5px))}
+.escena .cuadro::after{transform:scaleX(-1)}
+.escena .caracter{position:absolute;inset:0;display:grid;place-items:center;font-size:min(300px,64vw);line-height:1;font-weight:900;
+  background:linear-gradient(180deg,#FBE3A0 0%,#D4A64A 55%,#A9771F 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:trazo 1.9s cubic-bezier(.6,.05,.3,1) .25s both}
+@keyframes trazo{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+.escena .pinyin{position:absolute;left:0;right:0;top:-38px;text-align:center;color:var(--oro-claro);font-size:22px;font-weight:600;letter-spacing:.06em}
+.escena .signif{position:absolute;left:0;right:0;bottom:-38px;text-align:center;color:#F7E2D4;font-size:16px}
+.sello{position:absolute;right:-18px;bottom:22px;width:92px;height:92px;background:var(--bermellon);border-radius:9px;color:#FFF3EA;
+  display:grid;grid-template-columns:1fr 1fr;place-items:center;padding:8px;font-size:27px;font-weight:900;line-height:1;
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.3),0 10px 24px rgba(0,0,0,.35);transform:rotate(-7deg);
+  animation:estampar .45s cubic-bezier(.3,1.6,.5,1) 2s both}
+@keyframes estampar{from{opacity:0;transform:rotate(-7deg) scale(1.6)}to{opacity:1;transform:rotate(-7deg) scale(1)}}
+@media (prefers-reduced-motion:reduce){.escena .caracter,.sello{animation:none}}
+@media (max-width:860px){
+  .portada .envoltura{grid-template-columns:1fr;padding-top:48px;padding-bottom:84px;text-align:left}
+  .escena{width:min(260px,70vw);margin:44px 0 60px;order:-1}
+  .escena .caracter{font-size:min(200px,52vw)}
+  .sello{width:70px;height:70px;font-size:21px;right:-14px}
+}
+
+/* ---------- secciones ---------- */
+section{scroll-margin-top:70px}
+.seccion{padding:84px 0}
+.titulo-seccion{display:flex;align-items:flex-end;gap:18px;margin-bottom:36px}
+.titulo-seccion .han-grande{font-size:58px;line-height:.9;color:var(--bermellon);font-weight:900}
+.titulo-seccion h2{font-size:clamp(28px,3.6vw,40px);font-weight:900}
+.titulo-seccion p{margin:6px 0 0;color:var(--tinta-2)}
+
+/* ---------- apps ---------- */
+.apps{display:grid;gap:26px}
+.app{display:grid;grid-template-columns:300px 1fr;background:#fff;border:1px solid var(--linea);border-radius:20px;overflow:hidden;box-shadow:0 1px 0 rgba(94,12,14,.04),0 14px 40px -18px rgba(94,12,14,.28)}
+.vitrina{position:relative;background:var(--laca);color:#fff;display:grid;place-items:center;padding:26px;min-height:240px;overflow:hidden}
+.vitrina::after{content:"";position:absolute;inset:10px;border:1px solid rgba(240,211,140,.4);border-radius:12px;pointer-events:none}
+.cuerpo{padding:28px 30px 28px;display:flex;flex-direction:column;gap:14px}
+.cuerpo .cabeza{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-right:120px}
+@media (max-width:820px){.cuerpo .cabeza{padding-right:0}}
+.cuerpo h3{font-size:26px;font-weight:900}
+.estado{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--tinta-2);background:var(--seda);border-radius:999px;padding:4px 11px}
+.estado i{width:8px;height:8px;border-radius:50%;background:#C9A24A;box-shadow:0 0 0 0 rgba(201,162,74,.6);animation:latido 1.4s infinite}
+.estado.lista i{background:var(--jade);animation:none}
+@keyframes latido{70%{box-shadow:0 0 0 7px rgba(201,162,74,0)}100%{box-shadow:0 0 0 0 rgba(201,162,74,0)}}
+@media (prefers-reduced-motion:reduce){.estado i{animation:none}}
+.cuerpo .que{margin:0;color:var(--tinta-2);max-width:56ch}
+.precios{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:2px 0 4px}
+.precio{border-radius:12px;padding:12px 14px;border:1px solid var(--linea)}
+.precio.gratis{background:#F1F8F3;border-color:#CFE6D8}
+.precio.pago{background:#FFF8EA;border-color:#EBD6A6}
+.precio b{display:block;font-size:14px;margin-bottom:2px}
+.precio.gratis b{color:var(--jade)}
+.precio.pago b{color:#8A5A0B}
+.precio span{font-size:15.5px;color:var(--tinta)}
+.cuerpo .boton{align-self:flex-start;background:var(--bermellon);color:#fff;box-shadow:0 6px 16px -6px rgba(200,40,30,.7)}
+.cuerpo .boton:hover{background:#A91F17}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  .vitrina{min-height:200px}
+  .cuerpo{padding:22px 20px 24px}
+  .cuerpo .boton{align-self:stretch}
+}
+@media (max-width:440px){.precios{grid-template-columns:1fr}}
+
+/* vitrina: traductor */
+.v-trad{width:100%;max-width:240px;display:grid;gap:10px}
+.onda{display:flex;align-items:center;gap:3px;height:34px;justify-content:center}
+.onda span{width:4px;border-radius:2px;background:var(--oro-claro);opacity:.85}
+.linea-trad{background:rgba(255,255,255,.08);border:1px solid rgba(240,211,140,.3);border-radius:10px;padding:8px 12px}
+.linea-trad .h{font-size:20px;font-weight:900;line-height:1.2}
+.linea-trad .p{color:var(--oro-claro);font-size:14px;font-weight:600}
+.linea-trad .e{color:#F7E2D4;font-size:14px}
+/* vitrina: trazos */
+.v-trazos{display:grid;grid-template-columns:repeat(3,64px);gap:8px}
+.casilla{width:64px;height:64px;background:#FFFCF6;border-radius:6px;position:relative;display:grid;place-items:center;font-size:48px;line-height:1;font-weight:900;color:#2A1A14;
+  background-image:
+    linear-gradient(#E9B6AE,#E9B6AE),linear-gradient(#E9B6AE,#E9B6AE);
+  background-size:100% 1px,1px 100%;background-position:center;background-repeat:no-repeat}
+.casilla small{position:absolute;top:2px;left:4px;font:700 10px "Figtree",sans-serif;color:var(--bermellon)}
+.casilla.c1{color:#C8281E}.casilla.c2{color:#E08A1E}.casilla.c3{color:#2E7D5B}.casilla.c4{color:#2563A8}.casilla.c5{color:#7A3FA0}
+.casilla.c6{background-color:#FFF3E0}
+/* vitrina: certificado */
+.v-cert{width:170px;background:linear-gradient(180deg,#FFF6E0,#F3DDAE);border-radius:6px;padding:14px 12px 12px;text-align:center;color:#3A1A0E;
+  box-shadow:inset 0 0 0 3px #C9963A,inset 0 0 0 6px #FFF6E0,inset 0 0 0 7px #8E1616,0 12px 22px rgba(0,0,0,.35);transform:rotate(-3deg);position:relative}
+.v-cert .t{font-size:15px;font-weight:900;color:#8E1616;letter-spacing:.15em}
+.v-cert .foto{width:46px;height:54px;margin:8px auto 6px;border-radius:4px;background:radial-gradient(circle at 50% 38%,#E9C9A8 0 11px,transparent 12px),radial-gradient(ellipse at 50% 100%,#7A4526 0 20px,transparent 21px),#DCC7A0}
+.v-cert .n{font-size:24px;font-weight:900;line-height:1.1}
+.v-cert .py{font:700 11px "Figtree",sans-serif;color:#8E1616}
+.v-cert .z{font:600 10.5px "Figtree",sans-serif;color:#6B4A33;margin-top:4px}
+.v-cert .sello-c{position:absolute;right:-10px;bottom:-8px;width:36px;height:36px;border-radius:6px;background:#C8281E;color:#FFF3EA;display:grid;place-items:center;font-size:12px;font-weight:900;line-height:1.05;transform:rotate(9deg);box-shadow:0 4px 8px rgba(0,0,0,.3)}
+
+/* vitrina: mapa */
+.v-mapa{position:relative;width:220px;height:170px}
+.v-mapa svg{width:100%;height:100%}
+.globo{position:absolute;left:56%;top:30%;background:#FFFCF6;color:var(--tinta);border-radius:10px;padding:6px 10px;box-shadow:0 8px 20px rgba(0,0,0,.3);text-align:center;line-height:1.2;white-space:nowrap}
+.globo::after{content:"";position:absolute;left:14px;bottom:-6px;border:6px solid transparent;border-top-color:#FFFCF6;border-bottom:0}
+.globo .h{font-size:22px;font-weight:900}
+.globo .p{font-size:12px;color:var(--bermellon);font-weight:700}
+.globo .e{font-size:12px;color:var(--tinta-2)}
+
+/* ---------- próximamente ---------- */
+.proximas{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.proxima{border:1.5px dashed #D9C39A;border-radius:16px;padding:20px 18px;background:rgba(255,255,255,.55)}
+.proxima .h{font-size:34px;color:var(--laca);font-weight:900;line-height:1}
+.proxima h3{font-size:19px;margin:12px 0 6px;font-weight:700}
+.proxima p{margin:0;font-size:15px;color:var(--tinta-2)}
+.proxima .nota{display:inline-block;margin-top:12px;font-size:13px;font-weight:700;color:#8A5A0B;background:#FFF1D2;border-radius:999px;padding:3px 10px}
+@media (max-width:900px){.proximas{grid-template-columns:1fr}}
+@media (max-width:480px){.proximas{grid-template-columns:1fr}}
+
+/* ---------- maestro ---------- */
+.maestro-fondo{background:var(--seda);border-top:1px solid var(--linea);border-bottom:1px solid var(--linea)}
+.maestro{display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:center}
+.retrato{width:180px;height:180px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#B21E1E,var(--laca-osc));display:grid;place-items:center;color:var(--oro-claro);font-size:72px;font-weight:900;box-shadow:0 0 0 6px #fff,0 0 0 8px var(--oro)}
+.maestro h2{font-size:clamp(26px,3.2vw,36px);font-weight:900;margin-bottom:12px}
+.maestro p{margin:0 0 12px;color:var(--tinta-2);max-width:62ch}
+.maestro .boton{background:var(--tinta);color:#fff;margin-top:6px}
+.maestro .boton:hover{background:#3b2820}
+@media (max-width:720px){.maestro{grid-template-columns:1fr;gap:24px}.retrato{width:130px;height:130px;font-size:52px}}
+
+/* ---------- ayuda ---------- */
+.ayuda{display:grid;grid-template-columns:1fr 340px;gap:30px;align-items:start}
+.preguntas details{border-bottom:1px solid var(--linea)}
+.preguntas summary{cursor:pointer;list-style:none;padding:18px 40px 18px 0;font-weight:700;font-size:17.5px;position:relative}
+.preguntas summary::-webkit-details-marker{display:none}
+.preguntas summary::after{content:"";position:absolute;right:8px;top:50%;width:10px;height:10px;border-right:2.5px solid var(--bermellon);border-bottom:2.5px solid var(--bermellon);transform:translateY(-70%) rotate(45deg);transition:transform .2s}
+.preguntas details[open] summary::after{transform:translateY(-30%) rotate(-135deg)}
+.preguntas details p{margin:0 0 18px;color:var(--tinta-2);max-width:62ch}
+.contacto{background:var(--laca);color:#fff;border-radius:20px;padding:26px;position:sticky;top:84px}
+.contacto h3{font-size:22px;margin-bottom:8px}
+.contacto p{margin:0 0 16px;color:#F7E2D4;font-size:15.5px}
+.correo{display:block;background:#fff;color:var(--laca);font-weight:700;border-radius:12px;padding:12px 14px;text-decoration:none;word-break:break-all;font-size:15.5px}
+.correo:hover{background:#FFF6E5}
+.contacto .peq{font-size:13.5px;margin:12px 0 0;color:#EBC9B8}
+@media (max-width:860px){.ayuda{grid-template-columns:1fr}.contacto{position:static}}
+
+/* ---------- pie ---------- */
+footer{background:var(--laca-osc);color:#EBD3C6;padding:44px 0 34px;font-size:15px}
+footer .envoltura{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:28px}
+footer h4{margin:0 0 10px;color:var(--oro-claro);font-size:15px;font-weight:700}
+footer a{color:#fff;text-decoration:none}
+footer a:hover{text-decoration:underline}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+footer .boton-texto{background:none;border:0;padding:0;color:#fff;font:inherit;cursor:pointer;text-align:left}
+footer .boton-texto:hover{text-decoration:underline}
+.creditos{max-width:var(--ancho);margin:30px auto 0;padding:18px 20px 0;border-top:1px solid rgba(240,211,140,.2);font-size:13.5px;color:#C9A99B}
+@media (max-width:760px){footer .envoltura{grid-template-columns:1fr}}
+
+/* =========================================================
+   ENTRADA ANIMADA (puertas que se abren)
+   ========================================================= */
+body.entrando{overflow:hidden}
+#entrada{position:fixed;inset:0;z-index:100;overflow:hidden;perspective:1400px;
+  background:transparent;
+  animation:entradaFuera .6s ease-in 2.6s forwards}
+#entrada .escenario{position:absolute;inset:0;animation:acercar 1.6s cubic-bezier(.55,0,.75,.2) 1.7s forwards;transform-origin:50% 55%}
+@keyframes acercar{to{transform:scale(2.6)}}
+@keyframes entradaFuera{to{opacity:0;visibility:hidden}}
+/* puertas */
+.puerta{position:absolute;top:0;bottom:0;width:50%;
+  background:
+    radial-gradient(circle,#F2CF79 0 5px,#9C6A1A 6px,transparent 7px) 0 0/58px 58px,
+    linear-gradient(90deg,rgba(0,0,0,.25),transparent 12%,transparent 88%,rgba(0,0,0,.25)),
+    linear-gradient(180deg,#A31717,#6E0D0D);
+  box-shadow:inset 0 0 0 10px #4A0808,inset 0 0 0 14px #C9963A,inset 0 0 60px rgba(0,0,0,.45)}
+.puerta.izq{left:0;transform-origin:left center;animation:abrirIzq 1.3s cubic-bezier(.5,0,.2,1) 1.45s forwards}
+.puerta.der{right:0;transform-origin:right center;animation:abrirDer 1.3s cubic-bezier(.5,0,.2,1) 1.45s forwards}
+@keyframes abrirIzq{to{transform:rotateY(-105deg)}}
+@keyframes abrirDer{to{transform:rotateY(105deg)}}
+.aldaba{position:absolute;top:52%;width:62px;height:62px;border-radius:50%;
+  background:radial-gradient(circle at 50% 50%,transparent 20px,#E9C46A 21px,#B07E22 27px,transparent 28px),
+             radial-gradient(circle,#F7DB8A 0 9px,#A87420 10px,transparent 11px);
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.5))}
+.puerta.izq .aldaba{right:22px}.puerta.der .aldaba{left:22px}
+/* luz que sale de adentro al abrir */
+.luz{position:absolute;inset:0;background:radial-gradient(45% 60% at 50% 55%,rgba(255,236,180,.9),rgba(255,200,110,.3) 50%,transparent 75%);opacity:0;animation:luz 1.4s ease-out 1.5s forwards}
+@keyframes luz{40%{opacity:1}100%{opacity:0}}
+/* letrero */
+.letrero{position:absolute;left:50%;top:14%;transform:translate(-50%,0) scale(.6);opacity:0;z-index:3;
+  padding:18px 46px 16px;text-align:center;border-radius:10px;
+  background:linear-gradient(180deg,#2B1208,#160803);
+  box-shadow:inset 0 0 0 4px #C9963A,inset 0 0 0 9px #2B1208,inset 0 0 0 11px #E8C46A,0 18px 40px rgba(0,0,0,.6);
+  overflow:hidden;animation:letreroEntra .7s cubic-bezier(.2,1.4,.4,1) .15s forwards}
+@keyframes letreroEntra{to{opacity:1;transform:translate(-50%,0) scale(1)}}
+.letrero .han{display:block;white-space:nowrap;font-size:clamp(30px,8vw,74px);font-weight:900;letter-spacing:.12em;line-height:1.1;
+  background:linear-gradient(180deg,#FFF0B8,#E3B24E 55%,#A8741C);-webkit-background-clip:text;background-clip:text;color:transparent}
+.letrero small{display:block;margin-top:4px;color:#F0D38C;font-family:"Zen Old Mincho",serif;font-size:clamp(14px,2.2vw,20px);letter-spacing:.08em}
+.letrero::after{content:"";position:absolute;top:-20%;bottom:-20%;width:38%;left:-60%;
+  background:linear-gradient(100deg,transparent,rgba(255,250,220,.85),transparent);transform:skewX(-18deg);
+  animation:brillo .9s ease-in-out .8s forwards}
+@keyframes brillo{to{left:130%}}
+.letrero::before{content:"";position:absolute;left:50%;top:-140px;width:2px;height:140px;background:#8a6420}
+/* farolitos */
+.farol{position:absolute;top:0;width:clamp(54px,8vw,80px);z-index:4;transform-origin:50% 0;animation:mecer 2.6s ease-in-out infinite alternate}
+.farol.f1{left:12%}.farol.f2{right:12%;animation-delay:-1.3s}
+@media (max-width:600px){.letrero{padding:14px 22px 12px;top:18%}.letrero small{white-space:nowrap}#entrada .farol.f1{left:4%}#entrada .farol.f2{right:4%}#entrada .farol{width:46px}}
+@keyframes mecer{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
+.farol .cuerda{width:2px;height:clamp(30px,8vh,70px);background:#C9963A;margin:0 auto}
+.farol .tapa{height:9px;width:56%;margin:0 auto;background:#D9A845;border-radius:3px}
+.farol .globo-farol{aspect-ratio:1/.92;border-radius:46%;margin:0 auto;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 40%,#FF5A3C,#D01F17 55%,#8E0F0F);
+  box-shadow:0 0 30px rgba(255,90,40,.55),inset 0 0 0 1px rgba(0,0,0,.15);
+  color:#F7D77E;font-size:clamp(22px,3.4vw,34px);font-weight:900;
+  background-image:radial-gradient(circle at 50% 40%,#FF5A3C,#D01F17 55%,#8E0F0F),repeating-linear-gradient(90deg,transparent 0 22%,rgba(0,0,0,.12) 22% 24%)}
+.farol .borla{width:3px;height:26px;margin:0 auto;background:linear-gradient(#D9A845,#C8281E)}
+.saltar{position:absolute;right:18px;bottom:18px;z-index:6;background:rgba(0,0,0,.35);color:#F7E2C4;border:1.5px solid rgba(240,211,140,.6);
+  border-radius:999px;padding:9px 18px;font:600 15px "Figtree",sans-serif;cursor:pointer}
+.saltar:hover{background:rgba(0,0,0,.55)}
+/* la tienda aparece acercándose */
+.tras-entrada{animation:tiendaEntra 1.6s cubic-bezier(.3,0,.2,1) 1.45s both}
+@keyframes tiendaEntra{from{transform:scale(1.18);filter:brightness(.55)}to{transform:none;filter:none}}
+@media (prefers-reduced-motion:reduce){
+  #entrada{animation:entradaFuera .4s ease-in 1.2s forwards}
+  #entrada *{animation-duration:.01s!important;animation-delay:0s!important}
+  .farol{animation:none}
+  .tras-entrada{animation:none}
+}
+
+/* =========================================================
+   FACHADA DE TIENDA CHINA
+   ========================================================= */
+.tejado{position:relative;height:74px;margin-bottom:-1px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 74' preserveAspectRatio='none'%3E%3Cdefs%3E%3Cpattern id='t' width='24' height='74' patternUnits='userSpaceOnUse'%3E%3Crect width='24' height='74' fill='%23233B33'/%3E%3Crect x='9' width='6' height='74' fill='%232F4D42'/%3E%3C/pattern%3E%3C/defs%3E%3Cpath d='M0 10 Q40 34 120 30 L1080 30 Q1160 34 1200 10 L1200 74 L0 74Z' fill='url(%23t)'/%3E%3Cpath d='M0 10 Q40 34 120 30 L1080 30 Q1160 34 1200 10' stroke='%23C9963A' stroke-width='4' fill='none'/%3E%3Crect y='62' width='1200' height='12' fill='%23C9963A'/%3E%3Crect y='66' width='1200' height='3' fill='%238E1616'/%3E%3C/svg%3E") center/100% 100% no-repeat;
+  background-color:var(--laca-osc)}
+.tejado::before,.tejado::after{content:"";position:absolute;bottom:62px;width:46px;height:30px;background:#C9963A;
+  clip-path:polygon(0 0,100% 70%,100% 100%,30% 100%)}
+.tejado::before{left:0;transform:scaleX(-1) translateX(0)}
+.tejado::after{right:0;transform:none}
+.colgantes{position:absolute;left:0;right:0;top:74px;height:0;z-index:2;pointer-events:none}
+.colgantes .farol{top:0;animation-duration:3.2s}
+.colgantes .farol{width:52px}.colgantes .farol .globo-farol{font-size:22px}
+.colgantes .farol.f1{left:calc(50% - 600px)}.colgantes .farol.f2{right:calc(50% - 600px)}
+@media (max-width:1240px){.colgantes .farol.f1{left:28px}.colgantes .farol.f2{right:28px}}
+.colgantes .farol .cuerda{height:18px}
+@media (max-width:1240px){.portada .envoltura{padding-left:96px;padding-right:96px}}
+@media (max-width:860px){.colgantes{display:none}.portada .envoltura{padding-left:30px;padding-right:30px}}
+.pilar{position:absolute;top:0;bottom:0;width:22px;background:linear-gradient(90deg,#5E0C0E,#A31B1B 45%,#5E0C0E);z-index:1}
+.pilar.izq{left:0}.pilar.der{right:0}
+@media (max-width:600px){.pilar{width:10px}}
+
+/* ---------- estantes de madera ---------- */
+.estanteria{background:
+    linear-gradient(90deg,rgba(0,0,0,.18),transparent 6%,transparent 94%,rgba(0,0,0,.18)),
+    repeating-linear-gradient(90deg,#6B3B1F 0 3px,#7A4526 3px 90px,#6E3E21 90px 93px,#814A29 93px 180px);
+  position:relative}
+.estanteria::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.08;
+  background-image:linear-gradient(#F0D38C 2px,transparent 2px),linear-gradient(90deg,#F0D38C 2px,transparent 2px);background-size:46px 46px}
+.estanteria .titulo-seccion h2{color:#FFF3DC}
+.estanteria .titulo-seccion p{color:#F0D7B8}
+.estanteria .titulo-seccion .han-grande{color:#F0C25E}
+.estanteria .apps{gap:64px}
+.estanteria .app{position:relative;overflow:visible;border:0;border-radius:14px;box-shadow:0 22px 30px -18px rgba(0,0,0,.6)}
+.estanteria .app::after{ /* tabla del estante */
+  content:"";position:absolute;left:-26px;right:-26px;bottom:-30px;height:18px;border-radius:3px;
+  background:linear-gradient(180deg,#B9773F,#8A5228 60%,#5C3418);box-shadow:0 10px 16px rgba(0,0,0,.45)}
+.estanteria .vitrina{border-radius:14px 0 0 14px}
+.estanteria .cuerpo{border-radius:0 14px 14px 0;background:#FFFCF6}
+.etiqueta{position:absolute;top:-16px;right:26px;z-index:3;transform:rotate(4deg);transform-origin:50% 0;
+  background:linear-gradient(180deg,#F7DE9A,#E2B653);color:#3A0B08;padding:14px 16px 10px;border-radius:6px 6px 10px 10px;
+  text-align:center;box-shadow:0 8px 14px rgba(0,0,0,.3);line-height:1.15;clip-path:polygon(0 18%,22% 0,78% 0,100% 18%,100% 100%,0 100%)}
+.etiqueta::before{content:"";position:absolute;top:7px;left:50%;width:9px;height:9px;margin-left:-4.5px;border-radius:50%;background:#7A4526;box-shadow:inset 0 1px 2px rgba(0,0,0,.5)}
+.etiqueta b{display:block;font-size:15px;color:#8E1616}
+.etiqueta span{font-size:12.5px;font-weight:600}
+@media (max-width:820px){
+  .estanteria .vitrina{border-radius:14px 14px 0 0}
+  .estanteria .cuerpo{border-radius:0 0 14px 14px}
+  .estanteria .app::after{left:-10px;right:-10px}
+  .etiqueta{top:-12px;right:14px}
+}
+
+/* ---------- aviso de apertura ---------- */
+.velo{position:fixed;inset:0;z-index:60;background:rgba(34,20,15,.62);display:none;place-items:center;padding:18px}
+.velo.on{display:grid}
+.caja{background:var(--arroz);border-radius:20px;max-width:430px;width:100%;padding:30px 26px;text-align:center;border-top:6px solid var(--oro);box-shadow:0 30px 70px rgba(0,0,0,.35)}
+.caja .rueda{width:64px;height:64px;margin:0 auto 16px;border-radius:50%;border:5px solid var(--seda);border-top-color:var(--bermellon);animation:girar 1s linear infinite}
+@keyframes girar{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.caja .rueda{animation-duration:3s}}
+.caja h3{font-size:22px;margin-bottom:8px}
+.caja p{margin:0;color:var(--tinta-2)}
+.caja .boton{margin-top:18px;background:transparent;color:var(--tinta-2);box-shadow:inset 0 0 0 1.5px var(--linea);padding:10px 20px;font-size:15px}
+
+/* ---------- privacidad ---------- */
+.modal{position:fixed;inset:0;z-index:70;background:rgba(34,20,15,.62);display:none;place-items:center;padding:16px}
+.modal.on{display:grid}
+.modal .hoja{background:#fff;border-radius:18px;max-width:640px;width:100%;max-height:88vh;overflow:auto;padding:30px 28px;position:relative}
+.modal h3{font-size:24px;margin-bottom:12px}
+.modal p,.modal li{color:var(--tinta-2);font-size:15.5px}
+.modal .cerrar{position:absolute;top:12px;right:14px;background:none;border:0;font-size:28px;line-height:1;cursor:pointer;color:var(--tinta-2)}
+</style>
+</head>
+<body class="entrando">
+
+<!-- ============ ENTRADA ANIMADA ============ -->
+<div id="entrada" aria-hidden="true">
+  <div class="escenario">
+    <div class="luz"></div>
+    <div class="puerta izq"><span class="aldaba"></span></div>
+    <div class="puerta der"><span class="aldaba"></span></div>
+    <div class="farol f1"><div class="cuerda"></div><div class="tapa"></div><div class="globo-farol han">福</div><div class="tapa"></div><div class="borla"></div></div>
+    <div class="farol f2"><div class="cuerda"></div><div class="tapa"></div><div class="globo-farol han">学</div><div class="tapa"></div><div class="borla"></div></div>
+    <div class="letrero"><span class="han">阿隆索老师</span><small>Instituto Alonso Laoshi</small></div>
+  </div>
+  <button class="saltar" id="saltar" type="button">Entrar</button>
+</div>
+
+<div class="tras-entrada" id="tienda">
+<header class="barra">
+  <div class="envoltura">
+    <a class="marca" href="#inicio" aria-label="Instituto Alonso Laoshi, inicio">
+      <span class="sello-mini han" aria-hidden="true">老师</span>
+      <span><b>Instituto Alonso Laoshi</b><span>Aplicaciones para aprender chino</span></span>
+    </a>
+    <nav class="menu" aria-label="Secciones">
+      <a href="#aplicaciones">Aplicaciones</a>
+      <a href="#maestro">Quién soy</a>
+      <a href="#ayuda">Ayuda</a>
+    </nav>
+  </div>
+</header>
+
+<main id="inicio">
+  <div class="tejado" aria-hidden="true"></div>
+  <section class="portada">
+    <span class="pilar izq" aria-hidden="true"></span><span class="pilar der" aria-hidden="true"></span>
+    <div class="colgantes" aria-hidden="true" style="top:0">
+      <div class="farol f1"><div class="cuerda"></div><div class="tapa"></div><div class="globo-farol han">福</div><div class="tapa"></div><div class="borla"></div></div>
+      <div class="farol f2"><div class="cuerda"></div><div class="tapa"></div><div class="globo-farol han">福</div><div class="tapa"></div><div class="borla"></div></div>
+    </div>
+    <div class="envoltura">
+      <div>
+        <h1>Aprende chino con herramientas hechas por tu profesor</h1>
+        <p class="bajada">Traduce audios con pinyin, aprende a escribir cada carácter trazo por trazo, recorre el mundo en chino y elige tu nombre chino. Todo en español, y puedes empezar gratis.</p>
+        <div class="acciones">
+          <a class="boton oro" href="#aplicaciones">Ver aplicaciones</a>
+          <a class="boton linea" id="lnkYoutubePortada" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12 31 31 0 0 0 1 16.8a3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8zM9.7 15.1V8.9l5.8 3.1z"/></svg>
+            Ver el canal en YouTube
+          </a>
+        </div>
+      </div>
+      <div class="escena" aria-hidden="true">
+        <div class="pinyin">xué</div>
+        <div class="cuadro"></div>
+        <div class="caracter han">学</div>
+        <div class="signif">aprender</div>
+        <div class="sello han"><span>阿</span><span>隆</span><span>老</span><span>师</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== APLICACIONES =================== -->
+  <section class="seccion estanteria" id="aplicaciones">
+    <div class="envoltura">
+      <div class="titulo-seccion">
+        <span class="han han-grande" aria-hidden="true">用</span>
+        <div>
+          <h2>Aplicaciones</h2>
+          <p>Ábrelas desde el celular o la computadora, sin instalar nada.</p>
+        </div>
+      </div>
+
+      <div class="apps">
+        <!-- Traductor -->
+        <article class="app">
+          <div class="vitrina" aria-hidden="true">
+            <div class="v-trad">
+              <div class="onda" id="onda"></div>
+              <div class="linea-trad"><div class="h han">你好，很高兴认识你</div><div class="p">nǐ hǎo, hěn gāoxìng rènshi nǐ</div><div class="e">Hola, mucho gusto en conocerte</div></div>
+            </div>
+          </div>
+          <div class="cuerpo">
+            <div class="cabeza"><h3>Traductor de audio</h3><span class="estado" data-estado="traductor"><i></i><span>Revisando…</span></span></div>
+            <p class="que">Sube un MP3 en chino y recibe, frase por frase, los caracteres, el pinyin y la traducción al español. También funciona con inglés, japonés, coreano, francés, italiano y alemán.</p>
+            <div class="precios">
+              <div class="precio gratis"><b>Gratis</b><span>3 audios al día</span></div>
+              <div class="precio pago"><b>Planes</b><span>100 audios por 3 USD al mes, o 200 por 6 USD</span></div>
+            </div>
+            <a class="boton" href="https://traductor-audio-backend.onrender.com" data-app="traductor" data-nombre="el Traductor de audio">Empezar gratis</a>
+          </div>
+          <div class="etiqueta" aria-hidden="true"><b>Gratis</b><span>planes desde 3 USD</span></div>
+        </article>
+
+        <!-- Trazos -->
+        <article class="app">
+          <div class="vitrina" aria-hidden="true">
+            <div class="v-trazos han">
+              <div class="casilla c1"><small>1</small>丶</div>
+              <div class="casilla c2"><small>2</small>一</div>
+              <div class="casilla c3"><small>3</small>乛</div>
+              <div class="casilla c4"><small>4</small>亅</div>
+              <div class="casilla c5"><small>5</small>丿</div>
+              <div class="casilla c6">永</div>
+            </div>
+          </div>
+          <div class="cuerpo">
+            <div class="cabeza"><h3>Trazos Chinos</h3><span class="estado" data-estado="trazos"><i></i><span>Revisando…</span></span></div>
+            <p class="que">Escribe un carácter, una palabra o una frase y mira cada trazo de un color y en orden. Incluye animación, hoja de práctica en PDF para imprimir, pinyin y audio.</p>
+            <div class="precios">
+              <div class="precio gratis"><b>Gratis</b><span>Caracteres sueltos de HSK 1, con todas las funciones</span></div>
+              <div class="precio pago"><b>Acceso total</b><span>Cualquier carácter, palabras y frases por 3 USD al mes</span></div>
+            </div>
+            <a class="boton" href="https://trazos-chinos.onrender.com" data-app="trazos" data-nombre="Trazos Chinos">Empezar gratis</a>
+          </div>
+          <div class="etiqueta" aria-hidden="true"><b>Gratis</b><span>total: 3 USD/mes</span></div>
+        </article>
+
+        <!-- Mapa -->
+        <article class="app">
+          <div class="vitrina" aria-hidden="true">
+            <div class="v-mapa">
+              <svg viewBox="0 0 220 170" fill="none">
+                <circle cx="110" cy="85" r="78" fill="rgba(255,255,255,.06)" stroke="rgba(240,211,140,.55)" stroke-width="1.5"/>
+                <ellipse cx="110" cy="85" rx="34" ry="78" stroke="rgba(240,211,140,.3)"/>
+                <ellipse cx="110" cy="85" rx="64" ry="78" stroke="rgba(240,211,140,.22)"/>
+                <path d="M32 85h156M42 50h136M42 120h136" stroke="rgba(240,211,140,.25)"/>
+                <path d="M58 52c8-8 22-10 30-4 6 4 4 12 10 16 7 5 3 14-4 18-6 3-6 10-12 12-8 2-14-6-16-12-3-8-14-10-14-18 0-5 2-9 6-12z" fill="#D4A64A"/>
+                <path d="M84 104c6-2 12 2 13 8 1 7-3 12-6 18-2 5-8 6-10 1-3-7-6-14-4-21 1-3 4-5 7-6z" fill="#D4A64A" opacity=".85"/>
+                <path d="M118 46c10-6 28-6 40 0 10 5 22 6 26 16 3 8-6 12-14 13-9 1-12 9-20 9-10 0-12-8-20-10-8-2-14-8-14-16 0-5 1-9 2-12z" fill="#D4A64A" opacity=".85"/>
+                <path d="M128 92c8-2 14 4 16 10 2 8-4 16-10 18-6 2-10-6-11-12-1-7-2-14 5-16z" fill="#D4A64A" opacity=".7"/>
+                <circle cx="80" cy="74" r="5" fill="#C8281E" stroke="#fff" stroke-width="2"/>
+              </svg>
+              <div class="globo"><div class="h han">墨西哥</div><div class="p">Mòxīgē</div><div class="e">México</div></div>
+            </div>
+          </div>
+          <div class="cuerpo">
+            <div class="cabeza"><h3>Mapa del mundo en chino</h3><span class="estado" data-estado="mapa"><i></i><span>Revisando…</span></span></div>
+            <p class="que">Toca cualquier país, mar u océano y aparece su nombre en chino con pinyin y pronunciación. Tiene buscador, juego de preguntas y mapas por dentro de cada país, con estados y provincias.</p>
+            <div class="precios">
+              <div class="precio gratis"><b>Gratis</b><span>Todos los países y el juego del mundo</span></div>
+              <div class="precio pago"><b>Versión completa</b><span>Estados, provincias, audio y su juego por 3 USD al mes</span></div>
+            </div>
+            <a class="boton" href="https://mapa-chino.onrender.com" data-app="mapa" data-nombre="el Mapa del mundo en chino">Empezar gratis</a>
+          </div>
+          <div class="etiqueta" aria-hidden="true"><b>Gratis</b><span>completa: 3 USD/mes</span></div>
+        </article>
+
+        <!-- Certificado -->
+        <article class="app">
+          <div class="vitrina" aria-hidden="true">
+            <div class="v-cert">
+              <div class="t han">命名证书</div>
+              <div class="foto"></div>
+              <div class="n han">李美兰</div>
+              <div class="py">Lǐ Měilán</div>
+              <div class="z">Año del Dragón 龙</div>
+              <div class="sello-c han">认证<br>之印</div>
+            </div>
+          </div>
+          <div class="cuerpo">
+            <div class="cabeza"><h3>Certificado de Nombre Chino</h3><span class="estado" data-estado="certificado"><i></i><span>Revisando…</span></span></div>
+            <p class="que">Elige tu nombre en chino entre más de 200 opciones, con su significado y pinyin. Agrega tu foto y recibe un certificado decorativo con tu signo del zodiaco chino. Es un recuerdo, no un documento oficial.</p>
+            <div class="precios">
+              <div class="precio gratis"><b>Gratis</b><span>Crea tu certificado y mira cómo queda</span></div>
+              <div class="precio pago"><b>Pago único</b><span>Descárgalo sin marca en imagen o PDF por 3 USD</span></div>
+            </div>
+            <a class="boton" href="https://certificado-nombre-chino.onrender.com" data-app="certificado" data-nombre="el Certificado de Nombre Chino">Crear mi certificado</a>
+          </div>
+          <div class="etiqueta" aria-hidden="true"><b>3 USD</b><span>pago único</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== PRÓXIMAMENTE =================== -->
+  <section class="seccion" id="proximamente">
+    <div class="envoltura">
+      <div class="titulo-seccion">
+        <span class="han han-grande" aria-hidden="true">新</span>
+        <div>
+          <h2>Muy pronto</h2>
+          <p>Estas aplicaciones ya se están terminando.</p>
+        </div>
+      </div>
+      <div class="proximas">
+        <div class="proxima"><div class="h han">路</div><h3>Camino HSK1</h3><p>Las 300 palabras del nuevo HSK 1 en un recorrido por secciones, con juegos y repaso.</p><span class="nota">Próximamente</span></div>
+        <div class="proxima"><div class="h han">音</div><h3>Chino por Regiones</h3><p>Escucha las mismas frases en Pekín, Taiwán, Hong Kong, Shanghái y otras regiones de China.</p><span class="nota">Próximamente</span></div>
+        <div class="proxima"><div class="h han">话</div><h3>100 Frases en Chino</h3><p>Mini conversaciones de la vida diaria, con vocabulario y ejercicios para practicar.</p><span class="nota">Próximamente</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== MAESTRO =================== -->
+  <section class="seccion maestro-fondo" id="maestro">
+    <div class="envoltura maestro">
+      <div class="retrato han" aria-hidden="true">师</div>
+      <div>
+        <h2>Hola, soy Alonso Laoshi</h2>
+        <p>Soy profesor de chino mandarín y doctor en Educación. Doy clases a niños desde los 6 años hasta adultos, y enseño con el nuevo HSK 3.0, el programa oficial más reciente.</p>
+        <p>En mi canal <b>Aprendiendo Chino con Alonso Laoshi</b> explico el chino en español, paso a paso. Estas aplicaciones nacieron de mis propias clases, para que practiques también cuando no estoy contigo.</p>
+        <a class="boton" id="lnkYoutubeMaestro" href="#" target="_blank" rel="noopener">Ir al canal de YouTube</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- =================== AYUDA =================== -->
+  <section class="seccion" id="ayuda">
+    <div class="envoltura">
+      <div class="titulo-seccion">
+        <span class="han han-grande" aria-hidden="true">问</span>
+        <div><h2>Preguntas frecuentes</h2></div>
+      </div>
+      <div class="ayuda">
+        <div class="preguntas">
+          <details open>
+            <summary>¿Cómo pago?</summary>
+            <p>Dentro de cada aplicación. Primero creas una cuenta gratis con tu correo y luego eliges tu plan. Puedes pagar con PayPal o con tarjeta de débito o crédito, aunque no tengas cuenta de PayPal.</p>
+          </details>
+          <details>
+            <summary>¿Cómo cancelo mi suscripción?</summary>
+            <p>Entra a tu cuenta dentro de la aplicación y toca "Cancelar mi suscripción". Ya no se te vuelve a cobrar, y sigues usando la versión completa hasta el día que ya pagaste.</p>
+          </details>
+          <details>
+            <summary>¿Por qué a veces la aplicación tarda en abrir?</summary>
+            <p>Cuando nadie la ha usado en un rato, la aplicación "se duerme" y tarda hasta un minuto en despertar. Después ya abre rápido. Al entrar a esta página empezamos a despertarlas por ti.</p>
+          </details>
+          <details>
+            <summary>¿Necesito instalar algo?</summary>
+            <p>No. Todas funcionan en el navegador del celular, la tableta o la computadora.</p>
+          </details>
+          <details>
+            <summary>¿Una suscripción sirve para todas las aplicaciones?</summary>
+            <p>No, cada aplicación tiene su propio plan. Así pagas solo por la que usas. El Certificado de Nombre Chino no es suscripción: se paga una sola vez.</p>
+          </details>
+        </div>
+        <aside class="contacto">
+          <h3>¿Tienes algún problema?</h3>
+          <p>Si algo no funciona o tienes una duda con tu compra, escríbeme. Cuéntame qué aplicación usas y el correo de tu cuenta.</p>
+          <a class="correo" href="mailto:institutoalonsolaoshi@gmail.com?subject=Ayuda%20con%20mi%20compra">institutoalonsolaoshi@gmail.com</a>
+          <p class="peq">Respondo lo antes posible, normalmente en uno o dos días.</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="envoltura">
+    <div>
+      <h4>Instituto Alonso Laoshi</h4>
+      <p style="margin:0">Aplicaciones para aprender chino mandarín en español.</p>
+    </div>
+    <div>
+      <h4>Aplicaciones</h4>
+      <ul>
+        <li><a href="https://traductor-audio-backend.onrender.com" data-app="traductor" data-nombre="el Traductor de audio">Traductor de audio</a></li>
+        <li><a href="https://trazos-chinos.onrender.com" data-app="trazos" data-nombre="Trazos Chinos">Trazos Chinos</a></li>
+        <li><a href="https://mapa-chino.onrender.com" data-app="mapa" data-nombre="el Mapa del mundo en chino">Mapa del mundo en chino</a></li>
+        <li><a href="https://certificado-nombre-chino.onrender.com" data-app="certificado" data-nombre="el Certificado de Nombre Chino">Certificado de Nombre Chino</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contacto y más</h4>
+      <ul>
+        <li><a href="mailto:institutoalonsolaoshi@gmail.com">institutoalonsolaoshi@gmail.com</a></li>
+        <li><a id="lnkYoutubePie" href="#" target="_blank" rel="noopener">Canal de YouTube</a></li>
+        <li><a href="https://ko-fi.com/alonsolaoshi" target="_blank" rel="noopener">Apoya el canal en Ko-fi</a></li>
+        <li><button class="boton-texto" id="abrirPrivacidad">Aviso de privacidad</button></li>
+      </ul>
+    </div>
+  </div>
+  <div class="creditos">© <span id="anio">2026</span> Instituto Alonso Laoshi. Los pagos se procesan de forma segura con PayPal.</div>
+</footer>
+</div><!-- /tienda -->
+
+<!-- aviso mientras abre una app -->
+<div class="velo" id="velo" role="dialog" aria-modal="true" aria-labelledby="veloTit">
+  <div class="caja">
+    <div class="rueda" aria-hidden="true"></div>
+    <h3 id="veloTit">Abriendo la aplicación</h3>
+    <p id="veloTxt">Si estaba dormida, puede tardar hasta un minuto en abrir. No cierres esta página.</p>
+    <button class="boton" id="veloCancelar" type="button">Quedarme en la tienda</button>
+  </div>
+</div>
+
+<!-- aviso de privacidad -->
+<div class="modal" id="privacidad" role="dialog" aria-modal="true" aria-labelledby="privTit">
+  <div class="hoja">
+    <button class="cerrar" type="button" aria-label="Cerrar" data-cerrar>&times;</button>
+    <h3 id="privTit">Aviso de privacidad</h3>
+    <p>Instituto Alonso Laoshi respeta tu privacidad. Esto es lo que debes saber:</p>
+    <ul>
+      <li><b>Qué datos guardamos:</b> solo tu correo y tu contraseña (protegida) cuando creas una cuenta en una aplicación, y si tienes una suscripción activa y hasta qué fecha.</li>
+      <li><b>Pagos:</b> los procesa PayPal. Nunca vemos ni guardamos los números de tu tarjeta.</li>
+      <li><b>Para qué los usamos:</b> para darte acceso a lo que pagaste y responderte si nos escribes. No vendemos ni compartimos tus datos.</li>
+      <li><b>Audios y textos que subes:</b> se usan solo para darte el resultado en ese momento.</li>
+      <li><b>Tus derechos:</b> puedes pedir que borremos tu cuenta y tus datos escribiendo a institutoalonsolaoshi@gmail.com.</li>
+    </ul>
+    <p>Si tienes dudas sobre este aviso, escríbenos al mismo correo.</p>
+  </div>
+</div>
+
+<script>
+// ------------------------------------------------------------------
+// Aquí se cambian los links (YouTube y las direcciones de las apps).
+// ------------------------------------------------------------------
+const LINK_YOUTUBE = "https://www.youtube.com/channel/UCYuxfIEJYPufptQ4yC28abQ";
+
+// Direcciones que se "tocan" para despertar cada aplicación.
+const DESPERTAR = {
+  traductor: ["https://traductor-audio-backend.onrender.com/salud"],
+  trazos:    ["https://trazos-chinos.onrender.com/salud"],
+  mapa:      ["https://mapa-chino.onrender.com/", "https://mapa-chino-motor.onrender.com/"],
+  certificado: ["https://certificado-nombre-chino.onrender.com/"],
+};
+
+["lnkYoutubePortada", "lnkYoutubeMaestro", "lnkYoutubePie"].forEach(id => {
+  const a = document.getElementById(id); if (a) a.href = LINK_YOUTUBE;
+});
+document.getElementById("anio").textContent = new Date().getFullYear();
+
+// --- entrada animada: dura unos 3 segundos; "Entrar" la salta ---
+(() => {
+  const entrada = document.getElementById("entrada");
+  const terminar = () => {
+    if (!entrada.isConnected) return;
+    entrada.remove();
+    document.body.classList.remove("entrando");
+  };
+  document.getElementById("saltar").onclick = () => {
+    document.getElementById("tienda").style.animation = "none";
+    entrada.style.transition = "opacity .25s"; entrada.style.opacity = "0";
+    setTimeout(terminar, 250);
+  };
+  entrada.addEventListener("animationend", e => { if (e.target === entrada) terminar(); });
+  setTimeout(terminar, 4000); // por si acaso
+})();
+
+// --- ondita decorativa del traductor ---
+(() => {
+  const onda = document.getElementById("onda");
+  [10,18,26,14,30,22,12,28,34,20,16,26,12,22,30,18,10,24,14,8].forEach(h => {
+    const s = document.createElement("span"); s.style.height = h + "px"; onda.appendChild(s);
+  });
+})();
+
+// --- despertar las apps al entrar a la tienda ---
+const listas = {};
+function ponerEstado(app, lista) {
+  listas[app] = lista;
+  document.querySelectorAll(`[data-estado="${app}"]`).forEach(el => {
+    el.classList.toggle("lista", lista);
+    el.querySelector("span").textContent = lista ? "Lista para usar" : "Despertando…";
+  });
+}
+async function tocar(url) {
+  // "no-cors": solo nos importa que el servidor conteste, no lo que dice.
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 90000);
+  try { await fetch(url, { mode: "no-cors", cache: "no-store", signal: ctrl.signal }); return true; }
+  catch (e) { return false; }
+  finally { clearTimeout(t); }
+}
+Object.entries(DESPERTAR).forEach(([app, urls]) => {
+  const revisando = setTimeout(() => { if (!listas[app]) ponerEstado(app, false); }, 1500);
+  Promise.all(urls.map(tocar)).then(res => {
+    clearTimeout(revisando);
+    if (res.every(Boolean)) ponerEstado(app, true);
+    else document.querySelectorAll(`[data-estado="${app}"] span`).forEach(s => s.textContent = "Puede tardar en abrir");
+  });
+});
+
+// --- aviso al abrir una app ---
+const velo = document.getElementById("velo");
+const veloTit = document.getElementById("veloTit");
+const veloTxt = document.getElementById("veloTxt");
+let destino = null;
+document.querySelectorAll("a[data-app]").forEach(a => {
+  a.addEventListener("click", e => {
+    if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return; // abrir en otra pestaña: normal
+    e.preventDefault();
+    const app = a.dataset.app;
+    veloTit.textContent = "Abriendo " + a.dataset.nombre;
+    veloTxt.textContent = listas[app]
+      ? "Un momento…"
+      : "Si estaba dormida, puede tardar hasta un minuto en abrir. No cierres esta página.";
+    velo.classList.add("on");
+    destino = setTimeout(() => { location.href = a.href; }, 350);
+  });
+});
+document.getElementById("veloCancelar").onclick = () => {
+  clearTimeout(destino); velo.classList.remove("on");
+  if (window.stop) window.stop();
+};
+// Si la persona regresa con el botón "atrás", que no se quede el aviso.
+window.addEventListener("pageshow", () => velo.classList.remove("on"));
+
+// --- aviso de privacidad ---
+const priv = document.getElementById("privacidad");
+document.getElementById("abrirPrivacidad").onclick = () => priv.classList.add("on");
+priv.addEventListener("click", e => { if (e.target === priv || e.target.hasAttribute("data-cerrar")) priv.classList.remove("on"); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { priv.classList.remove("on"); } });
+</script>
+</body>
+</html>
