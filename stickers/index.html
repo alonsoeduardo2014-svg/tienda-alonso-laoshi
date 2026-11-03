@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Stickers Chinos</title>
+<style>
+:root{--rojo:#b3121b;--rojo2:#8e0c13;--oro:#f2c14e;--oro2:#c8922a;--papel:#fff8e8;--tinta:#3b1d0e;--panel:#fdf3dc}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;color:var(--tinta);overflow:hidden;
+  font-family:"Segoe UI",system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+body{background:radial-gradient(ellipse at top,#5a1015 0%,#2a0a0c 70%) #2a0a0c}
+.screen{position:absolute;inset:0;display:none;flex-direction:column}
+.screen.on{display:flex}
+header{display:flex;align-items:center;gap:8px;padding:8px 14px;background:linear-gradient(#c4161f,#8e0c13);border-bottom:3px solid var(--oro);flex-wrap:wrap}
+header h1{margin:0;font-size:20px;color:var(--oro);text-shadow:0 2px 0 #5a0a0e;white-space:nowrap}
+header h1 span{font-size:15px;color:#ffe9b0;margin-left:6px;font-weight:500}
+.sp{flex:1}
+.btn{border:2px solid var(--oro);background:linear-gradient(#ffe7a3,#f2c14e);color:#5a0a0e;font-weight:700;font-size:14px;border-radius:10px;padding:7px 12px;cursor:pointer;white-space:nowrap;box-shadow:0 2px 0 #7a4a10;font-family:inherit}
+.btn:active{transform:translateY(2px);box-shadow:none}
+.btn.off{filter:grayscale(.8) brightness(.9)}
+.btn.rojo{background:linear-gradient(#e0262f,#a5101a);color:#fff;border-color:var(--oro)}
+
+/* ---------- inicio ---------- */
+#home .wrap{flex:1;overflow-y:auto;padding:22px 18px 30px}
+#home .intro{text-align:center;color:#ffe9b0;margin:0 auto 20px;max-width:640px}
+#home .intro h2{color:var(--oro);font-size:30px;margin:0 0 4px;text-shadow:0 2px 0 #5a0a0e}
+#home .intro p{margin:0;font-size:15px}
+#cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px;max-width:1200px;margin:0 auto}
+.card{background:var(--panel);border:3px solid var(--oro2);border-radius:14px;overflow:hidden;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.5);transition:transform .15s;position:relative}
+.card:hover{transform:translateY(-3px)}
+.card img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border-bottom:3px solid var(--oro2)}
+.card .txt{padding:8px 12px 10px}
+.card .zh{font-size:22px;font-weight:700;color:var(--rojo)}
+.card .py{font-size:13px;color:#8a6a40}
+.card .es{font-size:15px;font-weight:600}
+.badge{position:absolute;top:10px;right:10px;padding:4px 10px;border-radius:20px;font-weight:700;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.badge.free{background:#2e9e4f;color:#fff}
+.badge.lock{background:#3b1d0e;color:var(--oro)}
+.card .n{position:absolute;top:10px;left:10px;background:var(--rojo);color:var(--oro);font-weight:700;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:2px solid var(--oro)}
+
+/* ---------- escena ---------- */
+main{flex:1;display:flex;min-height:0;gap:10px;padding:10px}
+#stage{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;position:relative}
+#board{position:relative;width:100%;border-radius:10px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.6);touch-action:none;background:#3a6}
+#board canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stk{position:absolute;touch-action:none;cursor:grab;user-select:none;-webkit-user-drag:none;transform-origin:50% 50%;filter:drop-shadow(0 3px 2px rgba(0,0,0,.25))}
+.stk.sel{outline:2px dashed #fff;outline-offset:2px;filter:drop-shadow(0 0 6px #ffd54a)}
+#tools{position:absolute;display:none;gap:4px;padding:5px;background:rgba(60,10,12,.92);border:2px solid var(--oro);border-radius:12px;z-index:9999;transform:translate(-50%,0)}
+#tools button{width:36px;height:36px;border:none;border-radius:8px;background:#fff3d0;font-size:18px;cursor:pointer;padding:0}
+#tools button:active{background:var(--oro)}
+#tools button.del{background:#ffb3b3}
+#toast{position:absolute;left:50%;top:10px;transform:translate(-50%,-140%);transition:transform .35s;background:rgba(255,248,232,.97);border:3px solid var(--rojo);border-radius:14px;padding:6px 18px;text-align:center;z-index:10000;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+#toast.show{transform:translate(-50%,0)}
+#toast .zh{font-size:30px;color:var(--rojo);font-weight:700;line-height:1.1}
+#toast .py{font-size:17px;color:#7a4a10}
+#toast .es{font-size:14px;color:#444}
+#lockbar{display:none;position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(30,5,6,.85) 40%);padding:30px 12px 12px;text-align:center;color:#ffe9b0;z-index:9000;pointer-events:none}
+#lockbar b{color:var(--oro)}
+#lockbar .btn{pointer-events:auto;margin-top:6px}
+aside{width:300px;flex:none;display:flex;flex-direction:column;background:var(--panel);border:4px solid var(--oro2);border-radius:12px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+aside .head{background:var(--rojo);color:var(--oro);text-align:center;font-weight:700;padding:6px;font-size:16px}
+aside .head small{display:block;color:#ffe2b0;font-weight:400;font-size:12px}
+.tabs{display:flex;background:#f5dfb0}
+.tabs button{flex:1;min-width:0;border:none;background:none;padding:8px 2px;font-size:11.5px;overflow-wrap:anywhere;font-weight:700;color:#7a4a10;cursor:pointer;border-bottom:3px solid transparent;font-family:inherit}
+.tabs button .ic{display:block;font-size:20px}
+.tabs button.on{background:var(--panel);color:var(--rojo);border-bottom-color:var(--rojo)}
+.grid{flex:1;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:8px;align-content:start}
+.th{background:#fff;border:2px solid #ecd6a4;border-radius:10px;padding:4px 2px 2px;display:flex;flex-direction:column;align-items:center;cursor:grab;touch-action:none;user-select:none;position:relative}
+.th:hover{border-color:var(--rojo)}
+.th img{width:100%;height:62px;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
+.th b{font-size:15px;color:var(--rojo);line-height:1.1}
+.th i{font-size:10px;color:#8a6a40;font-style:normal;text-align:center;line-height:1.1}
+.locked .th{cursor:not-allowed}
+.locked .th img{filter:grayscale(1) opacity(.55)}
+.locked .th::after{content:"🔒";position:absolute;top:2px;right:4px;font-size:15px}
+.hint{font-size:11.5px;color:#7a4a10;padding:6px 10px;border-top:1px solid #ecd6a4;text-align:center}
+#ghost{position:fixed;pointer-events:none;z-index:20000;display:none;opacity:.85;transform:translate(-50%,-50%)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:30000;padding:16px}
+.modal .box{background:var(--papel);border:4px solid var(--oro2);border-radius:14px;padding:18px;max-width:360px;text-align:center}
+.modal .box h3{margin:0 0 8px;color:var(--rojo)}
+.modal .box p{font-size:15px;margin:0 0 14px}
+.modal .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+@media (max-width:820px),(orientation:portrait){
+  main{flex-direction:column;padding:6px}
+  #stage{flex:none}
+  aside{width:auto;flex:1;min-height:180px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(78px,1fr))}
+  header h1{font-size:17px}
+  .btn{font-size:13px;padding:6px 9px}
+}
+@media (max-width:600px){header .lb{display:none}.btn{font-size:18px;padding:5px 10px}header{padding:6px 10px}#home .intro h2{font-size:24px}}
+</style>
+</head>
+<body>
+
+<!-- ============ INICIO ============ -->
+<section class="screen on" id="home">
+  <header><h1>Stickers Chinos <span>中国贴纸</span></h1></header>
+  <div class="wrap">
+    <div class="intro">
+      <h2>选一个地方 · Elige un escenario</h2>
+      <p>Decóralo con stickers como tú quieras, escucha cómo se dice cada cosa en chino y guarda la foto de tu creación.</p>
+    </div>
+    <div id="cards"></div>
+  </div>
+</section>
+
+<!-- ============ ESCENA ============ -->
+<section class="screen" id="scene">
+  <header>
+    <button class="btn" id="bVolver" title="Volver a los escenarios">⬅<span class="lb"> Escenarios</span></button>
+    <h1 id="sTitle"></h1>
+    <div class="sp"></div>
+    <button class="btn" id="bVoz" title="Activar o quitar la voz">🔊<span class="lb"> Voz</span></button>
+    <button class="btn" id="bAgua" title="Mover o detener el agua">💧<span class="lb"> Agua</span></button>
+    <button class="btn" id="bNuevo" title="Empezar de nuevo">🧹<span class="lb"> Empezar de nuevo</span></button>
+    <button class="btn" id="bFoto" title="Guardar foto">📸<span class="lb"> Guardar foto</span></button>
+  </header>
+  <main>
+    <div id="stage">
+      <div id="board">
+        <canvas id="cv"></canvas>
+        <div id="layer"></div>
+        <div id="tools">
+          <button data-a="mas" title="Más grande">➕</button>
+          <button data-a="menos" title="Más chico">➖</button>
+          <button data-a="izq" title="Girar">↺</button>
+          <button data-a="der" title="Girar">↻</button>
+          <button data-a="voltear" title="Voltear">⇋</button>
+          <button data-a="frente" title="Poner adelante">⬆️</button>
+          <button data-a="copia" title="Duplicar">📄</button>
+          <button data-a="oir" title="Escuchar">🔊</button>
+          <button data-a="borrar" class="del" title="Quitar">🗑️</button>
+        </div>
+        <div id="toast"><div class="zh"></div><div class="py"></div><div class="es"></div></div>
+        <div id="lockbar">🔒 <b>Escenario de la suscripción.</b> Puedes verlo y escuchar los stickers; para decorarlo, desbloquéalo.<br><button class="btn rojo" data-unlock>Desbloquear</button></div>
+      </div>
+    </div>
+    <aside>
+      <div class="head">Hoja de stickers <small>贴纸 tiēzhǐ · arrástralos al escenario</small></div>
+      <div class="tabs" id="tabs"></div>
+      <div class="grid" id="grid"></div>
+      <div class="hint" id="hint">Arrastra o toca un sticker para ponerlo. Tócalo en el escenario para moverlo, girarlo o cambiar su tamaño.</div>
+    </aside>
+  </main>
+</section>
+
+<img id="ghost" alt="">
+<div class="modal" id="mNuevo"><div class="box"><p>¿Quitar todos los stickers y empezar de nuevo?</p>
+  <div class="row"><button class="btn" id="mSi">Sí, empezar</button><button class="btn" id="mNo">No</button></div></div></div>
+<div class="modal" id="mLock"><div class="box"><h3>🔒 Escenario de la suscripción</h3>
+  <p>Este escenario se desbloquea con la suscripción mensual del Instituto Alonso Laoshi, que te da acceso a todas las aplicaciones.</p>
+  <div class="row"><button class="btn rojo" id="mSus">Suscribirme</button><button class="btn" id="mCerrar">Ahora no</button></div></div></div>
+
+<script>
+const SCENES=[{"id": "jardin", "es": "Jardín Chino", "zh": "中国花园", "py": "Zhōngguó huāyuán", "free": true, "w": 1672, "h": 941, "thumb": "a/facc4b9e2a68.webp", "bg": "a/51f6c73c7711.jpg", "water": {"src": "a/752262672616.webp", "box": [950, 128, 1575, 910]}, "wf": {"src": "a/b95bbaf3d1d3.png", "box": [1385, 62, 1545, 255], "foam": [1405, 232, 110]}, "cats": [{"id": "edi", "ic": "🏯", "es": "Edificios"}, {"id": "deco", "ic": "🏮", "es": "Decoración"}, {"id": "pla", "ic": "🌸", "es": "Plantas"}, {"id": "per", "ic": "🐼", "es": "Personajes"}], "st": [["edi", "大殿", "dàdiàn", "salón principal", "a/d4c55e2ac9f6.webp", 458, 303], ["edi", "亭子", "tíngzi", "pabellón", "a/ad2dabca235e.webp", 272, 301], ["edi", "房子", "fángzi", "casa", "a/4c44aa6ee4c0.webp", 293, 241], ["edi", "塔", "tǎ", "pagoda", "a/5658caac3b15.webp", 193, 307], ["edi", "大门", "dàmén", "puerta (欢迎 = bienvenido)", "a/ad0762c5b340.webp", 299, 260], ["deco", "石桥", "shíqiáo", "puente de piedra", "a/089aeba34177.webp", 396, 195], ["deco", "木桥", "mùqiáo", "puente de madera", "a/1ab609e8570a.webp", 301, 166], ["deco", "石桌", "shízhuō", "mesa de piedra", "a/2c67e3589317.webp", 220, 157], ["deco", "石灯", "shídēng", "linterna de piedra", "a/cabd99caa16a.webp", 136, 199], ["deco", "石狮子", "shí shīzi", "león de piedra", "a/4864ad1219bd.webp", 188, 205], ["deco", "石头", "shítou", "roca (园林 = jardín)", "a/337e6831d8db.webp", 225, 201], ["pla", "樱花树", "yīnghuā shù", "cerezo", "a/0ced99d9c768.webp", 284, 226], ["pla", "枫树", "fēngshù", "arce", "a/bb3a07e81ac5.webp", 227, 207], ["pla", "松树", "sōngshù", "pino", "a/cd062b51144c.webp", 251, 227], ["pla", "柳树", "liǔshù", "sauce", "a/053c4076b1bb.webp", 223, 215], ["pla", "竹子", "zhúzi", "bambú", "a/a36ca21fc403.webp", 162, 239], ["pla", "绣球花", "xiùqiúhuā", "hortensias", "a/473b8040eaed.webp", 203, 164], ["pla", "黄花", "huánghuā", "flores amarillas", "a/d05c712a4f0c.webp", 170, 166], ["per", "学生", "xuésheng", "estudiante", "a/c12a5bdf5ecc.webp", 112, 290], ["per", "姑娘", "gūniang", "muchacha", "a/ea5d615aa16e.webp", 139, 284], ["per", "老爷爷", "lǎo yéye", "abuelito", "a/7c8f5e0ebebd.webp", 129, 283], ["per", "小孩", "xiǎohái", "niño", "a/0d12a4b107a2.webp", 149, 223], ["per", "熊猫", "xióngmāo", "panda", "a/a1af3a74c9a6.webp", 181, 192], ["per", "仙鹤", "xiānhè", "grulla", "a/8e5365530f29.webp", 173, 210], ["per", "锦鲤", "jǐnlǐ", "pez koi", "a/062d5d866d2b.webp", 159, 149], ["per", "荷花", "héhuā", "flor de loto", "a/8cd29fc02b26.webp", 289, 184], ["deco", "灯笼", "dēnglong", "farol", "a/c314e8a6ce55.webp", 156, 305]]}, {"id": "palacio", "es": "Palacio Imperial", "zh": "皇宫", "py": "huánggōng", "free": true, "w": 1672, "h": 941, "thumb": "a/0fd76dfb484d.webp", "bg": "a/87764d3ebd8d.jpg", "water": {"src": "a/1e86c30b2ad0.webp", "box": [131, 739, 1672, 896]}, "wf": null, "cats": [{"id": "per", "ic": "👑", "es": "Personajes"}, {"id": "nat", "ic": "🌸", "es": "Naturaleza"}, {"id": "deco", "ic": "🏮", "es": "Decoración"}, {"id": "con", "ic": "🏯", "es": "Edificios"}], "st": [["per", "皇帝", "huángdì", "emperador", "a/7976fa83620f.webp", 262, 333], ["per", "皇后", "huánghòu", "emperatriz", "a/894bde056a63.webp", 188, 317], ["per", "大臣", "dàchén", "ministro", "a/04e3e3fb253c.webp", 172, 306], ["per", "公主", "gōngzhǔ", "princesa", "a/07e54d549b20.webp", 157, 300], ["per", "书生", "shūshēng", "estudiante", "a/7ccdf7d10a88.webp", 122, 292], ["per", "士兵", "shìbīng", "soldado", "a/4d23a9015ff9.webp", 162, 329], ["per", "将军", "jiāngjūn", "general", "a/96b20eb3aba8.webp", 149, 309], ["per", "鼓手", "gǔshǒu", "tamborilero", "a/710c0b3f190c.webp", 296, 313], ["nat", "金狮", "jīn shī", "león dorado", "a/f185a578b9bf.webp", 195, 233], ["nat", "麒麟", "qílín", "qilin (animal mítico)", "a/25288d026de0.webp", 184, 211], ["nat", "仙鹤", "xiānhè", "grulla", "a/d1fedc2b0267.webp", 108, 213], ["nat", "樱花树", "yīnghuā shù", "cerezo", "a/6c8012eb6d7e.webp", 250, 209], ["nat", "柳树", "liǔshù", "sauce", "a/78d7f56554de.webp", 208, 207], ["nat", "松树", "sōngshù", "pino", "a/6ee0797d8747.webp", 224, 202], ["nat", "假山", "jiǎshān", "roca decorativa", "a/ecd813346fa4.webp", 142, 165], ["nat", "竹子", "zhúzi", "bambú", "a/13cb757110cc.webp", 147, 205], ["nat", "牡丹", "mǔdan", "peonías", "a/2bf77a9397b2.webp", 184, 168], ["deco", "香炉", "xiānglú", "incensario", "a/39fbe77569b1.webp", 197, 205], ["deco", "宫灯", "gōngdēng", "lámpara del palacio", "a/2488825a964e.webp", 136, 211], ["deco", "石灯", "shídēng", "linterna de piedra", "a/ffdfd1e49602.webp", 126, 207], ["deco", "编钟", "biānzhōng", "campanas", "a/2810862eb534.webp", 203, 186], ["deco", "龙旗", "lóngqí", "bandera del dragón", "a/1ed4dcdad813.webp", 122, 230], ["con", "轿子", "jiàozi", "palanquín", "a/0f31c337332e.webp", 247, 222], ["con", "马车", "mǎchē", "carruaje", "a/25bc0d4ea8b1.webp", 293, 189], ["con", "小桥", "xiǎoqiáo", "puentecito", "a/aea7e434e5a2.webp", 251, 169], ["con", "月亮门", "yuèliàng mén", "puerta de luna", "a/a647c2181721.webp", 337, 240], ["con", "亭子", "tíngzi", "pabellón", "a/d4132975bac7.webp", 242, 261], ["con", "小摊", "xiǎotān", "puesto de mercado", "a/5adcd194410e.webp", 220, 227], ["deco", "遮阳伞", "zhēyángsǎn", "sombrilla con mesa", "a/589edf2edd13.webp", 218, 241], ["con", "瀑布", "pùbù", "cascada", "a/fb456d32f7a3.webp", 375, 240], ["deco", "灯笼", "dēnglong", "faroles", "a/a54e048c8403.webp", 173, 266]]}, {"id": "salon", "es": "Salón de Clases", "zh": "教室", "py": "jiàoshì", "free": false, "w": 1671, "h": 941, "k": 1.0, "thumb": "a/03fdb8fa28ef.webp", "bg": "a/d078341ff2ed.jpg", "video": null, "water": null, "wf": null, "cats": [{"id": "per", "ic": "👩‍🏫", "es": "Personas"}, {"id": "sal", "ic": "🪑", "es": "Salón"}, {"id": "uti", "ic": "✏️", "es": "Útiles"}, {"id": "deco", "ic": "🏮", "es": "Decoración"}], "st": [["per", "老师", "lǎoshī", "maestro", "a/6fb9adbb5d4c.webp", 178, 357], ["per", "女老师", "nǚ lǎoshī", "maestra", "a/3e7c3e6efdba.webp", 197, 352], ["per", "男同学", "nán tóngxué", "compañero", "a/82d936de5ec6.webp", 160, 354], ["per", "女同学", "nǚ tóngxué", "compañera", "a/1d940d413ce5.webp", 157, 339], ["per", "学生", "xuésheng", "estudiante", "a/7c9da5c42bb2.webp", 157, 351], ["per", "女学生", "nǚ xuésheng", "estudiante (chica)", "a/0029908c2c79.webp", 162, 339], ["per", "男孩", "nánhái", "chico de gorra", "a/2f27f102388e.webp", 158, 351], ["per", "他在写字", "tā zài xiě zì", "él está escribiendo", "a/b95918cef782.webp", 189, 309], ["per", "她在看书", "tā zài kàn shū", "ella está leyendo", "a/8f87fb68a379.webp", 192, 314], ["per", "他举手", "tā jǔ shǒu", "él levanta la mano", "a/f66f3a4c0fd1.webp", 173, 211], ["per", "他在想", "tā zài xiǎng", "él está pensando", "a/545a57078380.webp", 159, 204], ["per", "她在想", "tā zài xiǎng", "ella está pensando", "a/882517699ac3.webp", 168, 199], ["per", "他在看书", "tā zài kàn shū", "él está leyendo", "a/aba1d6db9419.webp", 163, 210], ["per", "她在写字", "tā zài xiě zì", "ella está escribiendo", "a/07032af4940f.webp", 159, 210], ["per", "他在写作业", "tā zài xiě zuòyè", "él hace la tarea", "a/ca0bf6b38c71.webp", 168, 207], ["sal", "黑板", "hēibǎn", "pizarrón (汉语课 = clase de chino)", "a/8f685ea7b69c.webp", 368, 179], ["per", "她在学习", "tā zài xuéxí", "ella está estudiando", "a/8732e90692fe.webp", 166, 202], ["sal", "书架", "shūjià", "librero", "a/0bedc5685540.webp", 163, 155], ["sal", "书柜", "shūguì", "vitrina de libros", "a/373c2f3672cb.webp", 160, 163], ["sal", "地球仪", "dìqiúyí", "globo terráqueo", "a/20d227cbc8a5.webp", 126, 164], ["deco", "竹子", "zhúzi", "bambú en maceta", "a/98a12ca0a7d8.webp", 110, 166], ["deco", "梅花", "méihuā", "flor de ciruelo", "a/49e354e378a5.webp", 143, 163], ["sal", "投影仪", "tóuyǐngyí", "proyector", "a/36ee5d3314af.webp", 151, 98], ["sal", "笔记本电脑", "bǐjìběn diànnǎo", "laptop", "a/09e859601b31.webp", 157, 151], ["sal", "课桌", "kèzhuō", "pupitre", "a/7811e40f894c.webp", 191, 168], ["uti", "平板电脑", "píngbǎn diànnǎo", "tableta", "a/a86b32584671.webp", 114, 121], ["sal", "讲桌", "jiǎngzhuō", "escritorio del maestro", "a/60771899bb2f.webp", 223, 167], ["uti", "书", "shū", "libros", "a/90e3eed0eb90.webp", 187, 133], ["uti", "课本", "kèběn", "libro de texto", "a/0b977faeabbf.webp", 216, 113], ["sal", "讲台", "jiǎngtái", "atril", "a/182978c56855.webp", 145, 164], ["uti", "笔记本", "bǐjìběn", "cuaderno", "a/12225e1f7685.webp", 137, 124], ["uti", "钢笔和毛笔", "gāngbǐ hé máobǐ", "pluma y pincel", "a/94c152312f13.webp", 96, 126], ["uti", "笔筒", "bǐtǒng", "portalápices", "a/cd8403a79291.webp", 75, 127], ["uti", "学士帽", "xuéshì mào", "birrete", "a/7066424488c8.webp", 151, 123], ["uti", "毕业证书", "bìyè zhèngshū", "diploma", "a/8463217b1215.webp", 113, 129], ["uti", "熊猫书包", "xióngmāo shūbāo", "mochila de panda", "a/16930ec9c406.webp", 140, 134], ["uti", "龙书包", "lóng shūbāo", "mochila de dragón", "a/f436a239c72c.webp", 140, 136], ["uti", "粉色书包", "fěnsè shūbāo", "mochila rosa", "a/6126711a4ad6.webp", 137, 135], ["deco", "国旗", "guóqí", "bandera", "a/c13654db22e8.webp", 144, 163], ["deco", "灯笼", "dēnglong", "farol", "a/897ebb165694.webp", 120, 155], ["deco", "中国结", "Zhōngguó jié", "nudo chino", "a/92f9148a836f.webp", 107, 162], ["deco", "学", "xué", "estudiar", "a/eb13fb6ebb60.webp", 121, 158], ["deco", "中国地图", "Zhōngguó dìtú", "mapa de China", "a/0c7ab247f5b6.webp", 185, 146], ["deco", "山水画", "shānshuǐhuà", "pintura de paisaje", "a/ffe71c274aa8.webp", 186, 140], ["deco", "圆窗", "yuán chuāng", "ventana redonda", "a/f98a57299830.webp", 155, 154], ["deco", "扇子", "shànzi", "abanico", "a/57bead0db4ee.webp", 186, 133], ["deco", "好好学习，天天向上", "hǎohǎo xuéxí, tiāntiān xiàng shàng", "estudia mucho y mejora cada día", "a/e416a9d6c17e.webp", 281, 148]]}, {"id": "pueblo", "es": "Pueblo de Agua", "zh": "水乡", "py": "shuǐxiāng", "free": false, "w": 1536, "h": 1024, "k": 0.38, "thumb": "a/751faacfbc45.webp", "bg": "a/efcb9ee54eca.jpg", "video": "a/980054389809.mp4", "water": null, "wf": null, "cats": [{"id": "per", "ic": "👨‍🌾", "es": "Personas"}, {"id": "tie", "ic": "🏪", "es": "Tiendas"}, {"id": "nat", "ic": "🦆", "es": "Naturaleza"}, {"id": "pue", "ic": "🏮", "es": "Pueblo"}], "st": [["per", "书生", "shūshēng", "joven letrado", "a/c4c160eb2119.webp", 143, 250], ["per", "姑娘", "gūniang", "muchacha", "a/80819fa533b2.webp", 159, 246], ["per", "小男孩", "xiǎo nánhái", "niño", "a/4423c5dd72f2.webp", 117, 207], ["per", "小女孩", "xiǎo nǚhái", "niña", "a/d731e94a6ae6.webp", 142, 222], ["per", "老爷爷", "lǎo yéye", "abuelito", "a/cd182d5a18a3.webp", 134, 238], ["per", "老奶奶", "lǎo nǎinai", "abuelita", "a/b9598afae106.webp", 132, 229], ["per", "挑夫", "tiāofū", "cargador", "a/e607912b735e.webp", 226, 240], ["per", "厨师", "chúshī", "cocinero", "a/cdcdebcb24c6.webp", 147, 246], ["per", "卖包子的", "mài bāozi de", "vendedora de bollos", "a/8c57622b422e.webp", 150, 239], ["per", "船夫", "chuánfū", "barquero", "a/949a36dd5959.webp", 222, 238], ["per", "木匠", "mùjiang", "carpintero", "a/3b94aa2fddd3.webp", 190, 197], ["per", "她在绣花", "tā zài xiùhuā", "ella está bordando", "a/7ef3b28d8990.webp", 153, 210], ["per", "他在写书法", "tā zài xiě shūfǎ", "él escribe caligrafía", "a/84e4fbf9b9f0.webp", 196, 208], ["per", "他们在喝茶", "tāmen zài hē chá", "ellos toman té", "a/0aac7c17f4ad.webp", 231, 202], ["per", "她在织布", "tā zài zhī bù", "ella teje tela", "a/b4b51f07d473.webp", 230, 211], ["per", "他在剪纸", "tā zài jiǎnzhǐ", "él recorta papel", "a/6456fa7e7071.webp", 181, 208], ["per", "游客", "yóukè", "turista", "a/79525c72c934.webp", 126, 228], ["per", "女游客", "nǚ yóukè", "turista (chica)", "a/cfc2a060eaf3.webp", 140, 219], ["tie", "水果摊", "shuǐguǒ tān", "puesto de fruta", "a/23f439aa2af5.webp", 194, 176], ["tie", "蔬菜摊", "shūcài tān", "puesto de verduras", "a/ed7003d89a95.webp", 187, 174], ["tie", "包子铺", "bāozi pù", "puesto de bollos", "a/76c695daadd9.webp", 182, 166], ["tie", "茶摊", "chá tān", "puesto de té", "a/817b4b05e349.webp", 197, 173], ["tie", "工艺品店", "gōngyìpǐn diàn", "tienda de artesanías", "a/0efc0f90dbe3.webp", 192, 170], ["tie", "花店", "huādiàn", "florería", "a/c38fb75abef4.webp", 183, 171], ["pue", "帆船", "fānchuán", "velero", "a/7897e5861bfd.webp", 187, 145], ["tie", "小吃车", "xiǎochī chē", "carrito de antojitos", "a/cebfa4552ce9.webp", 179, 152], ["pue", "酒坛", "jiǔtán", "tinajas (酒 = licor)", "a/211659a04c60.webp", 217, 143], ["pue", "游船", "yóuchuán", "barco de paseo", "a/da2c4dd088f8.webp", 243, 110], ["nat", "柳树", "liǔshù", "sauce", "a/6b4c2c86e602.webp", 186, 135], ["tie", "木楼", "mùlóu", "casa de madera", "a/073799e60c73.webp", 248, 179], ["nat", "樱花树", "yīnghuā shù", "cerezo", "a/4fa5f1f542db.webp", 171, 134], ["nat", "水牛", "shuǐniú", "búfalo de agua", "a/33a45324b185.webp", 187, 122], ["nat", "小狗", "xiǎogǒu", "perrito", "a/512335e8c467.webp", 89, 100], ["nat", "荷花", "héhuā", "flor de loto", "a/9e3e65a52b22.webp", 176, 109], ["nat", "公鸡", "gōngjī", "gallo", "a/205016519d89.webp", 86, 99], ["nat", "鸭子", "yāzi", "pato", "a/1e5966027e48.webp", 75, 101], ["nat", "假山", "jiǎshān", "rocas", "a/7e9962cbf73d.webp", 160, 111], ["nat", "鸳鸯", "yuānyang", "patos mandarines", "a/5a2f689fa05c.webp", 157, 67], ["nat", "花盆", "huāpén", "maceta con flores", "a/84984ad2dd67.webp", 124, 103], ["pue", "灯笼", "dēnglong", "farol", "a/001954c8450d.webp", 86, 146], ["pue", "石凳", "shídèng", "banca de piedra", "a/0a177e261982.webp", 152, 67], ["pue", "客栈", "kèzhàn", "posada", "a/abaf093c2167.webp", 90, 148], ["pue", "路牌", "lùpái", "letrero de caminos", "a/c3e48a821007.webp", 95, 145], ["pue", "石墩", "shídūn", "banquito de piedra", "a/15478e6c39fa.webp", 56, 52], ["pue", "石桌", "shízhuō", "mesa de piedra", "a/13fbb337d849.webp", 105, 78], ["pue", "石灯", "shídēng", "linterna de piedra", "a/5c1afa46ce4a.webp", 93, 142], ["pue", "石墩", "shídūn", "banquito de piedra", "a/019635d94cce.webp", 57, 52], ["nat", "大树", "dàshù", "árbol grande", "a/4aa93db0b381.webp", 174, 136], ["tie", "商店", "shāngdiàn", "tienda", "a/b87910f57b2c.webp", 223, 162], ["nat", "竹子", "zhúzi", "bambú", "a/b21c37b90b36.webp", 167, 119], ["tie", "茶馆", "cháguǎn", "casa de té", "a/f0b0cfeaf82f.webp", 237, 172], ["tie", "小店", "xiǎodiàn", "tiendita", "a/1c46326952a1.webp", 206, 158], ["pue", "亭子", "tíngzi", "pabellón", "a/265c704cbcb9.webp", 174, 166], ["pue", "石桥", "shíqiáo", "puente de piedra", "a/22f030d2e2ef.webp", 288, 145], ["pue", "水车", "shuǐchē", "rueda de agua", "a/a69cf8e388f6.webp", 177, 163]]}, {"id": "mercado", "es": "Mercado junto al Río", "zh": "河边集市", "py": "hébiān jíshì", "free": false, "w": 1248, "h": 704, "k": 0.7, "thumb": "a/c1a7ee3efeec.webp", "bg": "a/da1a73706f5a.jpg", "video": "a/254d6938f66d.mp4", "water": null, "wf": null, "cats": [{"id": "per", "ic": "👨‍🌾", "es": "Personas"}, {"id": "pue", "ic": "🏪", "es": "Puestos"}, {"id": "nat", "ic": "🐃", "es": "Naturaleza"}, {"id": "cos", "ic": "🏮", "es": "Cosas"}], "st": [["per", "挑夫", "tiāofū", "cargador", "a/56bff89ea8e9.webp", 174, 224], ["per", "姑娘", "gūniang", "muchacha", "a/afa4e5157698.webp", 142, 241], ["per", "书生", "shūshēng", "joven letrado", "a/4a5e5f514a92.webp", 121, 233], ["per", "她在弹琵琶", "tā zài tán pípa", "ella toca la pipa", "a/0ee2654a3cab.webp", 143, 236], ["per", "木匠", "mùjiang", "carpintero", "a/57baf268e095.webp", 158, 214], ["per", "厨师", "chúshī", "cocinero", "a/774f14737aa1.webp", 160, 225], ["per", "卖包子的", "mài bāozi de", "vendedora de bollos", "a/6d45baa277bf.webp", 115, 241], ["per", "老爷爷", "lǎo yéye", "abuelito", "a/5cfc8613ec77.webp", 113, 235], ["per", "老奶奶", "lǎo nǎinai", "abuelita", "a/6b82b5be9b72.webp", 107, 192], ["per", "小男孩", "xiǎo nánhái", "niño", "a/ebbb1308c248.webp", 113, 193], ["per", "小女孩", "xiǎo nǚhái", "niña", "a/e212914098eb.webp", 125, 186], ["pue", "菜车", "càichē", "carrito de verduras", "a/1e5976ca6945.webp", 199, 195], ["pue", "水果车", "shuǐguǒ chē", "carrito de fruta", "a/ff00c8a108b7.webp", 187, 181], ["pue", "茶摊", "chá tān", "puesto de té", "a/59427a1052fb.webp", 196, 194], ["pue", "小吃摊", "xiǎochī tān", "puesto de antojitos", "a/90ffeba1841c.webp", 192, 185], ["pue", "画家", "huàjiā", "pintor", "a/c3cadedda66b.webp", 217, 192], ["pue", "剪纸摊", "jiǎnzhǐ tān", "puesto de papel recortado", "a/f05016ed782d.webp", 160, 189], ["per", "他在编竹筐", "tā zài biān zhúkuāng", "él teje canastas", "a/4127ca58817f.webp", 165, 193], ["pue", "陶器摊", "táoqì tān", "puesto de cerámica", "a/034b57419ef4.webp", 181, 183], ["cos", "游船", "yóuchuán", "barco de paseo", "a/5ad98bc45207.webp", 248, 162], ["per", "船夫", "chuánfū", "barquero", "a/b356d8cfb173.webp", 201, 146], ["cos", "货船", "huòchuán", "barco de carga", "a/108e0018781b.webp", 163, 119], ["per", "渔夫", "yúfū", "pescador", "a/735b52a19d34.webp", 139, 154], ["nat", "鸬鹚", "lúcí", "cormorán", "a/a8e16510fc7b.webp", 83, 113], ["nat", "水牛", "shuǐniú", "búfalo de agua", "a/c654dc59f45a.webp", 186, 134], ["nat", "毛驴", "máolǘ", "burro", "a/41f61492c2c6.webp", 122, 139], ["nat", "小狗", "xiǎogǒu", "perrito", "a/bf62e6a7cf99.webp", 81, 112], ["nat", "小猫", "xiǎomāo", "gatito", "a/24cf07099062.webp", 56, 90], ["nat", "公鸡", "gōngjī", "gallo", "a/fd8c17dbd0eb.webp", 93, 114], ["nat", "母鸡", "mǔjī", "gallina", "a/f1f8702d9443.webp", 77, 93], ["nat", "小鸭子", "xiǎo yāzi", "patitos", "a/4b0ecf48701d.webp", 123, 65], ["nat", "鸭子", "yāzi", "pato", "a/0f641dd79e93.webp", 84, 111], ["cos", "石桥", "shíqiáo", "puente de piedra", "a/1330dd50e77d.webp", 356, 179], ["cos", "石灯", "shídēng", "linterna de piedra", "a/4e191f630c16.webp", 90, 180], ["cos", "灯笼", "dēnglong", "farol", "a/55bcc394db9a.webp", 109, 204], ["cos", "酒旗", "jiǔqí", "bandera de taberna", "a/9d539af2ca16.webp", 80, 196], ["cos", "告示牌", "gàoshi pái", "tablón de avisos", "a/0c1202a4c65b.webp", 167, 193], ["cos", "货物", "huòwù", "mercancía", "a/600de4118dd3.webp", 117, 100], ["cos", "桌椅", "zhuōyǐ", "mesa y bancos", "a/bbaad8b00b50.webp", 203, 108], ["cos", "长椅", "chángyǐ", "banca", "a/6bd21cf7de2f.webp", 119, 82], ["cos", "茶桌", "cházhuō", "mesa de té", "a/47fcef3a02d8.webp", 154, 189], ["cos", "凳子", "dèngzi", "banquito", "a/50680cd14d40.webp", 53, 65], ["pue", "空摊位", "kōng tānwèi", "puesto vacío", "a/b4a5b458a25c.webp", 199, 182], ["cos", "竹筐", "zhúkuāng", "canastas", "a/20cc999b705f.webp", 111, 152], ["nat", "柳树", "liǔshù", "sauce", "a/bd4bff6e010a.webp", 181, 235], ["nat", "樱花树", "yīnghuā shù", "cerezo", "a/c81497c31a61.webp", 170, 216], ["nat", "梅花树", "méihuā shù", "ciruelo en flor", "a/f59826aa804d.webp", 128, 198], ["nat", "竹子", "zhúzi", "bambú", "a/e54fb76ea891.webp", 181, 206], ["nat", "绣球花", "xiùqiúhuā", "hortensias", "a/88f7942ab880.webp", 118, 123], ["nat", "牡丹", "mǔdan", "peonía", "a/0bbd1997a550.webp", 122, 133], ["nat", "水仙花", "shuǐxiānhuā", "narcisos", "a/209f85e73c9d.webp", 97, 144], ["nat", "盆景", "pénjǐng", "bonsái", "a/db4045542e4e.webp", 99, 133], ["cos", "荷花池", "héhuā chí", "estanque de lotos", "a/5c562933d84b.webp", 193, 170], ["cos", "水井", "shuǐjǐng", "pozo", "a/77383347564d.webp", 136, 143], ["cos", "水车", "shuǐchē", "rueda de agua", "a/e125d241deb1.webp", 193, 202], ["cos", "石灯", "shídēng", "linterna de piedra", "a/57cc5b9e4c02.webp", 87, 186]]}, {"id": "futuro", "es": "Ciudad Inteligente", "zh": "智慧城市", "py": "zhìhuì chéngshì", "free": false, "w": 1248, "h": 704, "k": 0.7, "thumb": "a/e6f7ea599d99.webp", "bg": "a/c330273a5704.jpg", "video": "a/ab65db6072ce.mp4", "water": null, "wf": null, "cats": [{"id": "per", "ic": "🧑‍💼", "es": "Personas"}, {"id": "tra", "ic": "🚗", "es": "Transporte"}, {"id": "tec", "ic": "📱", "es": "Tecnología"}, {"id": "ciu", "ic": "🏙️", "es": "Ciudad"}], "st": [["per", "他在看手机", "tā zài kàn shǒujī", "él mira el celular", "a/5ba14ed4764a.webp", 135, 255], ["per", "她在看手机", "tā zài kàn shǒujī", "ella mira el celular", "a/ffd8d541e1af.webp", 112, 251], ["per", "商人", "shāngrén", "hombre de negocios", "a/31d556f1d993.webp", 118, 259], ["per", "白领", "báilǐng", "oficinista", "a/43b029aca15d.webp", 102, 256], ["per", "外卖员", "wàimài yuán", "repartidor de comida", "a/44eb704f5e26.webp", 160, 263], ["per", "快递员", "kuàidì yuán", "repartidor de paquetes", "a/101ce80b82e5.webp", 138, 261], ["per", "医生", "yīshēng", "doctora", "a/be5b4ac4dcee.webp", 131, 255], ["per", "他戴智能眼镜", "tā dài zhìnéng yǎnjìng", "él usa lentes inteligentes", "a/070e4509c380.webp", 134, 253], ["per", "爷爷奶奶", "yéye nǎinai", "abuelos", "a/f8425cba9ee6.webp", 167, 258], ["per", "一家人", "yì jiā rén", "familia", "a/64405b342124.webp", 201, 252], ["per", "游客", "yóukè", "turista", "a/16f2c5895a77.webp", 114, 250], ["per", "旅客", "lǚkè", "viajera", "a/1ef01f3879b4.webp", 125, 246], ["tra", "无人驾驶巴士", "wúrén jiàshǐ bāshì", "autobús sin conductor", "a/8b9907b9f18c.webp", 263, 143], ["tra", "无人驾驶汽车", "wúrén jiàshǐ qìchē", "auto sin conductor", "a/e7022a2a50db.webp", 177, 127], ["tra", "无人小巴", "wúrén xiǎobā", "minibús autónomo", "a/c843069675ee.webp", 151, 132], ["tra", "飞行汽车", "fēixíng qìchē", "auto volador", "a/220313494a68.webp", 268, 127], ["tra", "无人机", "wúrénjī", "dron de entregas", "a/71bc654195bf.webp", 206, 130], ["tra", "共享单车", "gòngxiǎng dānchē", "bici compartida", "a/32cc42991717.webp", 160, 136], ["tra", "电动滑板车", "diàndòng huábǎnchē", "scooter eléctrico", "a/066ab09b9830.webp", 117, 132], ["tra", "送货机器人", "sònghuò jīqìrén", "robot repartidor", "a/3df9ce860351.webp", 124, 114], ["tra", "扫地机器人", "sǎodì jīqìrén", "robot barrendero", "a/caa6e1ffd8b9.webp", 159, 124], ["tec", "智能地图", "zhìnéng dìtú", "mapa inteligente", "a/b3ba29a01992.webp", 155, 148], ["tec", "自助机", "zìzhù jī", "quiosco de autoservicio", "a/27e73e7bc66b.webp", 103, 153], ["tec", "全息屏幕", "quánxī píngmù", "pantalla holográfica", "a/026cacf0ba0e.webp", 198, 130], ["tec", "智能眼镜", "zhìnéng yǎnjìng", "lentes inteligentes", "a/707f32880286.webp", 148, 70], ["tec", "VR眼镜", "VR yǎnjìng", "lentes de realidad virtual", "a/d1cb0bb23b2e.webp", 134, 92], ["tec", "智能手表", "zhìnéng shǒubiǎo", "reloj inteligente", "a/9d03cc4b7ed7.webp", 106, 132], ["tec", "智能手机", "zhìnéng shǒujī", "celular", "a/b3db8996cad6.webp", 97, 122], ["tec", "笔记本电脑", "bǐjìběn diànnǎo", "laptop", "a/a67529d6634d.webp", 186, 112], ["tec", "平板电脑", "píngbǎn diànnǎo", "tableta", "a/ed9ae68fe43c.webp", 142, 96], ["tec", "耳机", "ěrjī", "audífonos", "a/27f0f0fa7e50.webp", 101, 103], ["tec", "充电桩", "chōngdiànzhuāng", "cargador de autos", "a/1f97a2488238.webp", 121, 159], ["ciu", "购物袋", "gòuwù dài", "bolsas de compras", "a/14418a44cc13.webp", 162, 122], ["tec", "广告屏", "guǎnggào píng", "pantalla de anuncios", "a/ec9609bbfe40.webp", 239, 155], ["ciu", "快递", "kuàidì", "paquete", "a/081765771fce.webp", 135, 104], ["ciu", "公交车站", "gōngjiāo chēzhàn", "parada de autobús", "a/7628a59bb1f3.webp", 240, 165], ["ciu", "外卖包", "wàimài bāo", "mochila de comida", "a/b348fbaf50b0.webp", 136, 130], ["ciu", "花坛", "huātán", "jardinera", "a/b01b67ecc4f3.webp", 152, 140], ["ciu", "奶茶", "nǎichá", "té de burbujas", "a/a71c24e5554a.webp", 75, 127], ["ciu", "炒面", "chǎomiàn", "fideos fritos", "a/d453c3b7170b.webp", 108, 129], ["ciu", "盒饭", "héfàn", "comida en recipiente", "a/0ab089236608.webp", 114, 118], ["ciu", "小卖部", "xiǎomàibù", "puesto de comida", "a/43985b612e46.webp", 178, 131], ["ciu", "路灯", "lùdēng", "farol de la calle", "a/ba7564be8f3f.webp", 79, 199], ["ciu", "樱花树", "yīnghuā shù", "cerezo", "a/432ae9d60c81.webp", 155, 162], ["tec", "自动售货机", "zìdòng shòuhuòjī", "máquina expendedora", "a/73e9bc446efa.webp", 123, 130], ["ciu", "大树", "dàshù", "árbol", "a/8e56f2f9cfdb.webp", 154, 159], ["ciu", "紫色的花", "zǐsè de huā", "flores moradas", "a/13ab8baf096e.webp", 152, 129], ["tec", "快递柜", "kuàidì guì", "lockers de paquetes", "a/f6d1d76ff060.webp", 181, 133], ["ciu", "灌木", "guànmù", "arbustos", "a/345402e69e9d.webp", 135, 122], ["ciu", "垃圾桶", "lājītǒng", "botes de basura", "a/2fb95a3193a8.webp", 220, 119], ["ciu", "喷泉", "pēnquán", "fuente", "a/e1c9b831488a.webp", 193, 146], ["ciu", "地铁", "dìtiě", "metro", "a/16a9dcb8ac28.webp", 197, 86], ["ciu", "公交车", "gōngjiāochē", "autobús", "a/bc73ac410a75.webp", 185, 84], ["ciu", "停车场", "tíngchēchǎng", "estacionamiento", "a/1a91eecd9280.webp", 196, 85], ["ciu", "餐厅", "cāntīng", "restaurante", "a/2c2f48da621b.webp", 173, 84], ["ciu", "长椅", "chángyǐ", "banca", "a/d329b8904a25.webp", 176, 107], ["ciu", "商店", "shāngdiàn", "tienda", "a/18ac62f0c86a.webp", 147, 84], ["ciu", "信息中心", "xìnxī zhōngxīn", "centro de información", "a/de8de462361c.webp", 212, 84], ["ciu", "充电站", "chōngdiànzhàn", "estación de carga", "a/7c1ddad95d6f.webp", 189, 84], ["ciu", "卫生间", "wèishēngjiān", "baños", "a/ee00f9886df2.webp", 168, 84], ["ciu", "出口", "chūkǒu", "salida", "a/5278814d66ce.webp", 172, 85]]}];
+/* Aquí se conecta la cuenta y la suscripción de la tienda.
+   Mientras no esté conectada, solo se abren los escenarios gratis. */
+const ACCESO={suscrito:false, urlSuscripcion:"#"};
+const puedeUsar=sc=>sc.free||ACCESO.suscrito;
+
+const $=s=>document.querySelector(s);
+const board=$("#board"),layer=$("#layer"),tools=$("#tools"),grid=$("#grid"),ghost=$("#ghost"),cv=$("#cv"),cx=cv.getContext("2d");
+let K=0.5;
+let S=null,ST=[],NW=1672,NH=941,items=[],sel=null,zTop=1,uid=1,voz=true,agua=true,cat=null,locked=false;
+
+/* ---------- inicio ---------- */
+function home(){
+  $("#cards").innerHTML=SCENES.map((s,i)=>`
+    <div class="card" data-i="${i}">
+      <span class="n">${i+1}</span>
+      <span class="badge ${s.free?'free':'lock'}">${s.free?'GRATIS':'🔒 Suscripción'}</span>
+      <img src="${s.thumb}" alt="">
+      <div class="txt"><div class="zh">${s.zh}</div><div class="py">${s.py}</div><div class="es">${s.es}</div></div>
+    </div>`).join("");
+  $("#cards").querySelectorAll(".card").forEach(c=>c.onclick=()=>open(+c.dataset.i));
+}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id==id))}
+$("#bVolver").onclick=()=>{stopAnim();show("home")};
+
+/* ---------- abrir escenario ---------- */
+function open(i){
+  S=SCENES[i];locked=!puedeUsar(S);
+  ST=S.st.map((a,k)=>({i:k,cat:a[0],zh:a[1],py:a[2],es:a[3],src:a[4],w:a[5],h:a[6]}));
+  NW=S.w;NH=S.h;cv.width=NW;cv.height=NH;K=S.k||0.5;
+  $("#sTitle").innerHTML=`${S.es} <span>${S.zh}</span>`;
+  $("#bAgua").style.display=(S.water||S.video)?"":"none";
+  $("#bNuevo").style.display=$("#bFoto").style.display=locked?"none":"";
+  $("#lockbar").style.display=locked?"block":"none";
+  $("#hint").textContent=locked?"🔒 Toca un sticker para escuchar su nombre. Para ponerlos en el escenario, desbloquéalo con la suscripción.":"Arrastra o toca un sticker para ponerlo. Tócalo en el escenario para moverlo, girarlo o cambiar su tamaño.";
+  document.querySelector("aside").classList.toggle("locked",locked);
+  items=[];sel=null;zTop=1;uid=1;layer.innerHTML="";
+  if(!locked)load();
+  cat=S.cats[0].id;tabs();sheet();
+  show("scene");fit();startAnim();
+}
+
+/* ---------- guardar en el navegador ---------- */
+const key=()=>"stickersChinos_"+S.id;
+function save(){if(locked)return;try{localStorage.setItem(key(),JSON.stringify({items,zTop,uid}))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem(key())||"null");
+  if(d&&Array.isArray(d.items)){items=d.items.filter(o=>ST[o.k]);zTop=d.zTop||1;uid=d.uid||items.length+1}}catch(e){}}
+
+/* ---------- tamaño ---------- */
+function fit(){
+  if(!$("#scene").classList.contains("on"))return;
+  const st=$("#stage");
+  const portrait=matchMedia("(max-width:820px), (orientation:portrait)").matches;
+  if(portrait){const w=st.parentElement.clientWidth-12;st.style.height=(w*NH/NW)+"px"}else st.style.height="";
+  const W=st.clientWidth,H=st.clientHeight;let w=W,h=W*NH/NW;if(h>H){h=H;w=H*NW/NH}
+  board.style.width=w+"px";board.style.height=h+"px";render();
+}
+addEventListener("resize",fit);
+
+/* ---------- hoja de stickers ---------- */
+function tabs(){
+  $("#tabs").innerHTML=S.cats.map(c=>`<button data-c="${c.id}" class="${c.id==cat?'on':''}"><span class="ic">${c.ic}</span>${c.es}</button>`).join("");
+  $("#tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{cat=b.dataset.c;tabs();sheet()});
+}
+function sheet(){
+  grid.innerHTML="";grid.scrollTop=0;
+  ST.filter(s=>s.cat==cat).forEach(s=>{
+    const d=document.createElement("div");d.className="th";
+    d.innerHTML=`<img src="${s.src}" alt=""><b>${s.zh}</b><i>${s.py}<br>${s.es}</i>`;
+    d.addEventListener("pointerdown",e=>locked?(e.preventDefault(),say(s),lockMsg()):startNew(e,s));
+    grid.appendChild(d);
+  });
+}
+function lockMsg(){clearTimeout(lockMsg.t);lockMsg.t=setTimeout(()=>$("#mLock").style.display="flex",900)}
+document.querySelectorAll("[data-unlock]").forEach(b=>b.onclick=()=>$("#mLock").style.display="flex");
+$("#mCerrar").onclick=()=>$("#mLock").style.display="none";
+$("#mSus").onclick=()=>{if(ACCESO.urlSuscripcion&&ACCESO.urlSuscripcion!="#")location.href=ACCESO.urlSuscripcion;else $("#mLock").style.display="none"};
+
+/* ---------- arrastrar desde la hoja ---------- */
+function startNew(e,s){
+  e.preventDefault();
+  const x0=e.clientX,y0=e.clientY;let moved=false;
+  ghost.src=s.src;ghost.style.width=(s.w*K*board.clientWidth/NW)+"px";
+  const mv=ev=>{if(!moved&&Math.hypot(ev.clientX-x0,ev.clientY-y0)>6){moved=true;ghost.style.display="block"}
+    if(moved){ghost.style.left=ev.clientX+"px";ghost.style.top=ev.clientY+"px"}};
+  const up=ev=>{
+    removeEventListener("pointermove",mv);removeEventListener("pointerup",up);removeEventListener("pointercancel",up);
+    ghost.style.display="none";const r=board.getBoundingClientRect();
+    if(!moved){add(s.i,NW/2+(Math.random()-.5)*300,NH/2+(Math.random()-.5)*160);return}
+    if(ev.clientX>=r.left&&ev.clientX<=r.right&&ev.clientY>=r.top&&ev.clientY<=r.bottom)
+      add(s.i,(ev.clientX-r.left)/r.width*NW,(ev.clientY-r.top)/r.height*NH);
+  };
+  addEventListener("pointermove",mv);addEventListener("pointerup",up);addEventListener("pointercancel",up);
+}
+function add(k,x,y,base){
+  if(locked)return;
+  const o=Object.assign({id:uid++,k,sc:1,r:0,f:false},base||{},{x,y,z:++zTop});
+  items.push(o);render();select(o.id);say(ST[k]);save();
+}
+
+/* ---------- dibujar stickers ---------- */
+function render(){
+  const bw=board.clientWidth/NW;
+  const keep=new Set(items.map(o=>String(o.id)));
+  layer.querySelectorAll(".stk").forEach(el=>{if(!keep.has(el.dataset.id))el.remove()});
+  items.forEach(o=>{
+    let el=layer.querySelector(`.stk[data-id="${o.id}"]`);const s=ST[o.k];
+    if(!el){el=document.createElement("img");el.className="stk";el.dataset.id=o.id;el.src=s.src;el.draggable=false;
+      el.addEventListener("pointerdown",e=>grab(e,o.id));
+      el.addEventListener("wheel",e=>{e.preventDefault();const it=find(o.id);it.sc=clamp(it.sc*(e.deltaY<0?1.08:1/1.08));render();save()},{passive:false});
+      layer.appendChild(el)}
+    const w=s.w*K*o.sc*bw,h=s.h*K*o.sc*bw;
+    el.style.width=w+"px";el.style.height=h+"px";el.style.left=(o.x*bw-w/2)+"px";el.style.top=(o.y*bw-h/2)+"px";
+    el.style.zIndex=o.z;el.style.transform=`rotate(${o.r}deg) scaleX(${o.f?-1:1})`;
+    el.classList.toggle("sel",o.id===sel);
+  });
+  placeTools();
+}
+const find=id=>items.find(o=>o.id===id);
+const clamp=v=>Math.max(.3,Math.min(4,v));
+
+function grab(e,id){
+  e.preventDefault();e.stopPropagation();
+  const o=find(id);select(id);
+  const r=board.getBoundingClientRect(),bw=r.width/NW;
+  const dx=(e.clientX-r.left)/bw-o.x,dy=(e.clientY-r.top)/bw-o.y,x0=e.clientX,y0=e.clientY;let moved=false;
+  tools.style.display="none";
+  const mv=ev=>{if(Math.hypot(ev.clientX-x0,ev.clientY-y0)>4)moved=true;
+    o.x=Math.max(0,Math.min(NW,(ev.clientX-r.left)/bw-dx));o.y=Math.max(0,Math.min(NH,(ev.clientY-r.top)/bw-dy));render();tools.style.display="none"};
+  const up=()=>{removeEventListener("pointermove",mv);removeEventListener("pointerup",up);removeEventListener("pointercancel",up);
+    tools.style.display="flex";placeTools();save();if(!moved)say(ST[o.k])};
+  addEventListener("pointermove",mv);addEventListener("pointerup",up);addEventListener("pointercancel",up);
+}
+function select(id){sel=id;render()}
+board.addEventListener("pointerdown",e=>{if(e.target.closest("#tools")||e.target.closest("#lockbar"))return;if(!e.target.classList.contains("stk")){sel=null;render()}});
+function placeTools(){
+  const o=sel&&find(sel);if(!o){tools.style.display="none";return}
+  const el=layer.querySelector(`.stk[data-id="${o.id}"]`);if(!el)return;
+  tools.style.display="flex";
+  const bw=board.clientWidth/NW,h=parseFloat(el.style.height),th=tools.offsetHeight||46,tw=tools.offsetWidth||360;
+  let top=o.y*bw+h/2+8;if(top+th>board.clientHeight)top=o.y*bw-h/2-th-8;
+  top=Math.max(4,Math.min(board.clientHeight-th-4,top));
+  tools.style.left=Math.max(tw/2+4,Math.min(board.clientWidth-tw/2-4,o.x*bw))+"px";tools.style.top=top+"px";
+}
+tools.addEventListener("pointerdown",e=>e.stopPropagation());
+tools.addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;const o=find(sel);if(!o)return;const a=b.dataset.a;
+  if(a=="mas")o.sc=clamp(o.sc*1.15);if(a=="menos")o.sc=clamp(o.sc/1.15);
+  if(a=="izq")o.r-=15;if(a=="der")o.r+=15;if(a=="voltear")o.f=!o.f;if(a=="frente")o.z=++zTop;
+  if(a=="oir")say(ST[o.k]);
+  if(a=="copia"){add(o.k,Math.min(NW,o.x+40),Math.min(NH,o.y+25),{sc:o.sc,r:o.r,f:o.f});return}
+  if(a=="borrar"){items=items.filter(x=>x.id!==o.id);sel=null}
+  render();save();
+});
+addEventListener("keydown",e=>{if((e.key=="Delete"||e.key=="Backspace")&&sel&&$("#scene").classList.contains("on")){items=items.filter(x=>x.id!==sel);sel=null;render();save()}});
+
+/* ---------- nombre en chino + voz ---------- */
+let tt;
+function say(s){
+  const t=$("#toast");
+  t.querySelector(".zh").textContent=s.zh;t.querySelector(".py").textContent=s.py;t.querySelector(".es").textContent=s.es;
+  t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2600);
+  if(!voz||!("speechSynthesis" in window))return;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(s.zh);u.lang="zh-CN";u.rate=.85;
+    const vs=speechSynthesis.getVoices(),v=vs.find(v=>/zh[-_]CN/i.test(v.lang))||vs.find(v=>/^zh/i.test(v.lang));
+    if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}
+}
+if("speechSynthesis" in window)speechSynthesis.getVoices();
+$("#bVoz").onclick=()=>{voz=!voz;$("#bVoz").classList.toggle("off",!voz);$("#bVoz").firstChild.textContent=voz?"🔊":"🔇"};
+$("#bAgua").onclick=()=>{agua=!agua;$("#bAgua").classList.toggle("off",!agua)};
+$("#bNuevo").onclick=()=>$("#mNuevo").style.display="flex";
+$("#mNo").onclick=()=>$("#mNuevo").style.display="none";
+$("#mSi").onclick=()=>{items=[];sel=null;render();save();$("#mNuevo").style.display="none"};
+
+/* ---------- fondo con agua en movimiento ---------- */
+let A=null,raf=0;
+function loadImg(src){return new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.src=src})}
+async function startAnim(){
+  stopAnim();const scene=S;
+  const bg=await loadImg(S.bg);
+  const wl=S.water?await loadImg(S.water.src):null;
+  const wfm=S.wf?await loadImg(S.wf.src):null;
+  if(scene!==S)return;
+  A={bg,wl,wfm,sparks:[],streaks:[],shine:null,fall:null,video:null};
+  if(S.video){const v=document.createElement("video");v.muted=true;v.loop=true;v.playsInline=true;v.setAttribute("playsinline","");
+    v.src=S.video;v.play().catch(()=>{});A.video=v}
+  if(wl){
+    const [x0,y0]=S.water.box,WW=wl.width,WH=wl.height;
+    A.shine=document.createElement("canvas");A.shine.width=WW;A.shine.height=WH;
+    const c=document.createElement("canvas");c.width=WW;c.height=WH;const g=c.getContext("2d");g.drawImage(wl,0,0);
+    const d=g.getImageData(0,0,WW,WH).data;let n=0;const want=Math.min(55,Math.round(WW*WH/6000));
+    while(A.sparks.length<want&&n<30000){n++;const x=Math.random()*WW|0,y=Math.random()*WH|0;
+      if(d[(y*WW+x)*4+3]>250)A.sparks.push({x:x+x0,y:y+y0,p:Math.random()*6.28,s:.7+Math.random()*1.3})}
+  }
+  if(wfm){A.fall=document.createElement("canvas");A.fall.width=wfm.width;A.fall.height=wfm.height;
+    for(let i=0;i<70;i++)A.streaks.push({x:Math.random()*wfm.width,len:15+Math.random()*40,sp:120+Math.random()*160,o:Math.random()*wfm.height,a:.25+Math.random()*.5,w:1+Math.random()*2.2})}
+  let last=0;
+  const loop=ms=>{raf=requestAnimationFrame(loop);if(ms-last<33)return;last=ms;draw(ms/1000)};
+  draw(0);raf=requestAnimationFrame(loop);
+}
+function stopAnim(){cancelAnimationFrame(raf);raf=0;if(A&&A.video){A.video.pause();A.video.removeAttribute("src");A.video.load()}}
+function draw(t){
+  if(!A)return;
+  if(A.video){const v=A.video;if(agua&&v.paused)v.play().catch(()=>{});if(!agua&&!v.paused)v.pause();
+    if(v.readyState>=2)cx.drawImage(v,0,0,NW,NH);else cx.drawImage(A.bg,0,0,NW,NH);}
+  else cx.drawImage(A.bg,0,0,NW,NH);
+  if(!agua)return;
+  if(A.wl){
+    const wl=A.wl,[x0,y0]=S.water.box,WW=wl.width,WH=wl.height;
+    for(let y=0;y<WH;y+=3){const Y=y+y0;const dx=Math.sin(Y*.055+t*1.7)*1.8+Math.sin(Y*.017-t*.9)*1.2;cx.drawImage(wl,0,y,WW,3,x0+dx,Y,WW,3)}
+    const sx=A.shine.getContext("2d");sx.globalCompositeOperation="source-over";sx.clearRect(0,0,WW,WH);
+    for(let i=0;i<6;i++){const p=((t*28+i*170)%(WW+400))-250;
+      const g=sx.createLinearGradient(p,0,p+90,60);g.addColorStop(0,"rgba(255,255,255,0)");g.addColorStop(.5,"rgba(255,255,255,.22)");g.addColorStop(1,"rgba(255,255,255,0)");
+      sx.fillStyle=g;sx.save();sx.transform(1,0,-.8,1,0,0);sx.fillRect(p-40,0,140,WH);sx.restore()}
+    sx.globalCompositeOperation="destination-in";sx.drawImage(wl,0,0);
+    cx.globalCompositeOperation="lighter";cx.globalAlpha=.55;cx.drawImage(A.shine,x0,y0);cx.globalAlpha=1;cx.globalCompositeOperation="source-over";
+    for(const s of A.sparks){const a=Math.max(0,Math.sin(t*s.s*2+s.p));if(a<.05)continue;const r=1.2+a*2.2;
+      cx.fillStyle=`rgba(255,255,255,${a*.85})`;
+      cx.beginPath();cx.moveTo(s.x-r*2,s.y);cx.lineTo(s.x,s.y-r*.5);cx.lineTo(s.x+r*2,s.y);cx.lineTo(s.x,s.y+r*.5);cx.fill();
+      cx.beginPath();cx.moveTo(s.x,s.y-r*1.6);cx.lineTo(s.x+r*.4,s.y);cx.lineTo(s.x,s.y+r*1.6);cx.lineTo(s.x-r*.4,s.y);cx.fill()}
+  }
+  if(A.wfm){
+    const fx=A.fall.getContext("2d"),FW=A.fall.width,FH=A.fall.height,[fx0,fy0]=S.wf.box;
+    fx.globalCompositeOperation="source-over";fx.clearRect(0,0,FW,FH);fx.lineCap="round";
+    for(const s of A.streaks){const y=((s.o+t*s.sp)%(FH+s.len))-s.len;fx.strokeStyle=`rgba(255,255,255,${s.a})`;fx.lineWidth=s.w;fx.beginPath();fx.moveTo(s.x,y);fx.lineTo(s.x+1,y+s.len);fx.stroke()}
+    fx.globalCompositeOperation="destination-in";fx.drawImage(A.wfm,0,0);cx.drawImage(A.fall,fx0,fy0);
+    if(S.wf.foam){const [fxx,fyy,fw]=S.wf.foam;
+      for(let i=0;i<14;i++){const ph=(t*1.3+i*.37)%1,x=fxx+((i*53)%fw),y=fyy+ph*18;
+        cx.fillStyle=`rgba(255,255,255,${(1-ph)*.55})`;cx.beginPath();cx.arc(x+Math.sin(i+t)*4,y,2+ph*5,0,6.28);cx.fill()}}
+  }
+}
+
+/* ---------- guardar foto ---------- */
+$("#bFoto").onclick=async()=>{
+  if(locked)return;
+  const c=document.createElement("canvas");c.width=NW;c.height=NH;const g=c.getContext("2d");g.drawImage(cv,0,0);
+  const imgs={};await Promise.all([...new Set(items.map(o=>o.k))].map(async k=>imgs[k]=await loadImg(ST[k].src)));
+  [...items].sort((a,b)=>a.z-b.z).forEach(o=>{const s=ST[o.k],w=s.w*K*o.sc,h=s.h*K*o.sc;
+    g.save();g.translate(o.x,o.y);g.rotate(o.r*Math.PI/180);g.scale(o.f?-1:1,1);
+    g.shadowColor="rgba(0,0,0,.25)";g.shadowOffsetY=3;g.shadowBlur=3;g.drawImage(imgs[o.k],-w/2,-h/2,w,h);g.restore()});
+  g.font="bold 22px 'Microsoft YaHei',sans-serif";g.fillStyle="rgba(255,240,190,.95)";g.textAlign="right";
+  g.shadowColor="rgba(0,0,0,.6)";g.shadowBlur=4;g.lineWidth=5;g.strokeStyle="rgba(60,10,12,.9)";g.strokeText(`${S.zh} · ${S.es} · Alonso Laoshi`,NW-40,NH-14);g.fillText(`${S.zh} · ${S.es} · Alonso Laoshi`,NW-40,NH-14);
+  c.toBlob(b=>{const a=document.createElement("a");a.href=URL.createObjectURL(b);
+    const d=new Date(),p=n=>String(n).padStart(2,"0");
+    a.download=`${S.id}-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}.png`;
+    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)},"image/png");
+};
+
+home();
+</script>
+</body>
+</html>

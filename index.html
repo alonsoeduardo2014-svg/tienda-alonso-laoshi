@@ -169,6 +169,13 @@ section{scroll-margin-top:70px}
 /* vitrina: mapa */
 .v-mapa{position:relative;width:220px;height:170px}
 .v-mapa svg{width:100%;height:100%}
+.v-stk{position:relative;width:240px;height:150px}
+.v-stk .fondo{width:100%;height:100%;object-fit:cover;border-radius:10px;border:3px solid #F0D38C;box-shadow:0 8px 18px rgba(0,0,0,.35)}
+.v-stk .s{position:absolute;filter:drop-shadow(0 4px 4px rgba(0,0,0,.35))}
+.v-stk .s1{width:70px;left:18px;bottom:-14px;transform:rotate(-6deg)}
+.v-stk .s2{width:58px;left:118px;bottom:2px;transform:rotate(4deg)}
+.v-stk .s3{width:44px;right:4px;top:-14px;transform:rotate(10deg)}
+.v-stk .globo{left:-16px;top:-18px;right:auto;bottom:auto}
 .globo{position:absolute;left:56%;top:30%;background:#FFFCF6;color:var(--tinta);border-radius:10px;padding:6px 10px;box-shadow:0 8px 20px rgba(0,0,0,.3);text-align:center;line-height:1.2;white-space:nowrap}
 .globo::after{content:"";position:absolute;left:14px;bottom:-6px;border:6px solid transparent;border-top-color:#FFFCF6;border-bottom:0}
 .globo .h{font-size:22px;font-weight:900}
@@ -437,22 +444,6 @@ body.entrando{overflow:hidden}
       </div>
 
       <div class="apps">
-        <!-- Traductor -->
-        <article class="app">
-          <div class="vitrina" aria-hidden="true">
-            <div class="v-trad">
-              <div class="onda" id="onda"></div>
-              <div class="linea-trad"><div class="h han">你好，很高兴认识你</div><div class="p">nǐ hǎo, hěn gāoxìng rènshi nǐ</div><div class="e">Hola, mucho gusto en conocerte</div></div>
-            </div>
-          </div>
-          <div class="cuerpo">
-            <div class="cabeza"><h3>Traductor de audio</h3><span class="estado" data-estado="traductor"><i></i><span>Revisando…</span></span></div>
-            <p class="que">Sube un MP3 en chino y recibe, frase por frase, los caracteres, el pinyin y la traducción al español. También funciona con inglés, japonés, coreano, francés, italiano y alemán.</p>
-            <a class="boton" href="https://traductor-audio-backend.onrender.com" data-app="traductor" data-nombre="el Traductor de audio">Empezar gratis</a>
-          </div>
-          <div class="etiqueta" aria-hidden="true"><b>Gratis</b><span>pruébala</span></div>
-        </article>
-
         <!-- Trazos -->
         <article class="app">
           <div class="vitrina" aria-hidden="true">
@@ -515,6 +506,40 @@ body.entrando{overflow:hidden}
             <div class="cabeza"><h3>Certificado de Nombre Chino</h3><span class="estado" data-estado="certificado"><i></i><span>Revisando…</span></span></div>
             <p class="que">Elige tu nombre en chino entre más de 200 opciones, con su significado y pinyin. Agrega tu foto y recibe un certificado decorativo con tu signo del zodiaco chino. Es un recuerdo, no un documento oficial.</p>
             <a class="boton" href="https://certificado-nombre-chino.onrender.com" data-app="certificado" data-nombre="el Certificado de Nombre Chino">Crear mi certificado</a>
+          </div>
+          <div class="etiqueta" aria-hidden="true"><b>Gratis</b><span>pruébala</span></div>
+        </article>
+        <!-- Stickers -->
+        <article class="app">
+          <div class="vitrina" aria-hidden="true">
+            <div class="v-stk">
+              <img class="fondo" src="stickers/a/facc4b9e2a68.webp" alt="">
+              <img class="s s1" src="stickers/a/a1af3a74c9a6.webp" alt="">
+              <img class="s s2" src="stickers/a/5658caac3b15.webp" alt="">
+              <img class="s s3" src="stickers/a/897ebb165694.webp" alt="">
+              <div class="globo"><div class="h han">熊猫</div><div class="p">xióngmāo</div><div class="e">panda</div></div>
+            </div>
+          </div>
+          <div class="cuerpo">
+            <div class="cabeza"><h3>Stickers Chinos</h3><span class="estado" data-estado="stickers"><i></i><span>Revisando…</span></span></div>
+            <p class="que">Escenarios chinos para decorar con stickers como tú quieras: jardín, palacio, salón de clases, pueblo de agua y más. Al poner cada sticker escuchas su nombre en chino con pinyin, y al final guardas la foto de tu creación.</p>
+            <a class="boton" href="stickers/" data-app="stickers" data-nombre="Stickers Chinos">Empezar gratis</a>
+          </div>
+          <div class="etiqueta" aria-hidden="true"><b>Gratis</b><span>pruébala</span></div>
+        </article>
+
+        <!-- Traductor -->
+        <article class="app">
+          <div class="vitrina" aria-hidden="true">
+            <div class="v-trad">
+              <div class="onda" id="onda"></div>
+              <div class="linea-trad"><div class="h han">你好，很高兴认识你</div><div class="p">nǐ hǎo, hěn gāoxìng rènshi nǐ</div><div class="e">Hola, mucho gusto en conocerte</div></div>
+            </div>
+          </div>
+          <div class="cuerpo">
+            <div class="cabeza"><h3>Traductor de audio</h3><span class="estado" data-estado="traductor"><i></i><span>Revisando…</span></span></div>
+            <p class="que">Sube un MP3 en chino y recibe, frase por frase, los caracteres, el pinyin y la traducción al español. También funciona con inglés, japonés, coreano, francés, italiano y alemán.</p>
+            <a class="boton" href="https://traductor-audio-backend.onrender.com" data-app="traductor" data-nombre="el Traductor de audio">Empezar gratis</a>
           </div>
           <div class="etiqueta" aria-hidden="true"><b>Gratis</b><span>pruébala</span></div>
         </article>
@@ -585,10 +610,11 @@ body.entrando{overflow:hidden}
     <div>
       <h4>Aplicaciones</h4>
       <ul>
-        <li><a href="https://traductor-audio-backend.onrender.com" data-app="traductor" data-nombre="el Traductor de audio">Traductor de audio</a></li>
         <li><a href="https://trazos-chinos.onrender.com" data-app="trazos" data-nombre="Trazos Chinos">Trazos Chinos</a></li>
         <li><a href="https://mapa-chino.onrender.com" data-app="mapa" data-nombre="el Mapa del mundo en chino">Mapa del mundo en chino</a></li>
         <li><a href="https://certificado-nombre-chino.onrender.com" data-app="certificado" data-nombre="el Certificado de Nombre Chino">Certificado de Nombre Chino</a></li>
+        <li><a href="stickers/" data-app="stickers" data-nombre="Stickers Chinos">Stickers Chinos</a></li>
+        <li><a href="https://traductor-audio-backend.onrender.com" data-app="traductor" data-nombre="el Traductor de audio">Traductor de audio</a></li>
       </ul>
     </div>
     <div>
@@ -644,6 +670,7 @@ const DESPERTAR = {
   trazos:    ["https://trazos-chinos.onrender.com/salud"],
   mapa:      ["https://mapa-chino.onrender.com/", "https://mapa-chino-motor.onrender.com/"],
   certificado: ["https://certificado-nombre-chino.onrender.com/"],
+  stickers:  ["stickers/"],
 };
 
 ["lnkYoutubePortada", "lnkYoutubeMaestro", "lnkYoutubePie"].forEach(id => {
