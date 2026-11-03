@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Stickers Chinos</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
 :root{--rojo:#b3121b;--rojo2:#8e0c13;--oro:#f2c14e;--oro2:#c8922a;--papel:#fff8e8;--tinta:#3b1d0e;--panel:#fdf3dc}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -90,13 +91,38 @@ aside .head small{display:block;color:#ffe2b0;font-weight:400;font-size:12px}
   .btn{font-size:13px;padding:6px 9px}
 }
 @media (max-width:600px){header .lb{display:none}.btn{font-size:18px;padding:5px 10px}header{padding:6px 10px}#home .intro h2{font-size:24px}}
+.cuenta{margin-left:auto}
+.btn.sus{background:linear-gradient(#bff0c8,#7fd18f);border-color:#2e9e4f;color:#0f4a1f}
+.badge.ok{background:#f2c14e;color:#5a0a0e}
+.vmodal{position:fixed;inset:0;z-index:40000;background:rgba(20,4,6,.65);display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow:auto}
+.vmodal[hidden]{display:none}
+.vcaja{background:var(--papel);color:var(--tinta);border:4px solid var(--oro2);border-radius:14px;max-width:440px;width:100%;margin:auto;padding:18px 20px 16px;box-shadow:0 18px 50px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:12px}
+.vcaja h2{margin:0;font-size:1.25rem;color:var(--rojo)}
+.vcaja p{margin:0}
+.vcaja [hidden]{display:none!important}
+.vcerrar{align-self:flex-end;border:none;background:none;font-size:1.6rem;line-height:1;margin:-8px -6px -10px 0;color:#8a6a40;cursor:pointer}
+.vprecio{font-size:1.5rem;font-weight:700;color:var(--rojo)}
+.vlista{margin:0;padding-left:20px;font-size:.92rem}
+.vform{display:flex;flex-direction:column;gap:8px}
+.vform input{border:1px solid #d9bf86;border-radius:8px;padding:10px 12px;background:#fff;font-size:1rem;width:100%;font-family:inherit}
+.vfila{display:flex;gap:8px;flex-wrap:wrap}
+.vfila .btn{flex:1;padding:10px 12px;font-size:.95rem}
+.vmsg{font-size:.9rem;color:var(--rojo);min-height:1em}
+.vmsg.ok{color:#1f7a3a}
+.vchico{font-size:.8rem;color:#7a5a30}
+.vlink{background:none;border:none;padding:0;color:var(--rojo);text-decoration:underline;font-size:.85rem;align-self:flex-start;cursor:pointer;font-family:inherit}
+.bloq{background:#fff3d6;border:1px solid #e3cf9a;border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px;font-size:.9rem}
+#vPaypal{background:#fffaf0;border:1px solid #e3cf9a;border-radius:12px;padding:12px 12px 4px}
+#vPaypal:empty{display:none}
+.vaviso{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:45000;background:#3b1d0e;color:#fff3d0;padding:9px 16px;border-radius:999px;font-size:.9rem;box-shadow:0 6px 20px rgba(0,0,0,.4);max-width:calc(100% - 32px);text-align:center}
+.vaviso[hidden]{display:none}
 </style>
 </head>
 <body>
 
 <!-- ============ INICIO ============ -->
 <section class="screen on" id="home">
-  <header><h1>Stickers Chinos <span>中国贴纸</span></h1></header>
+  <header><h1>Stickers Chinos <span>中国贴纸</span></h1><button class="btn cuenta" data-cuenta>👤 Entrar</button></header>
   <div class="wrap">
     <div class="intro">
       <h2>选一个地方 · Elige un escenario</h2>
@@ -109,6 +135,7 @@ aside .head small{display:block;color:#ffe2b0;font-weight:400;font-size:12px}
 <!-- ============ ESCENA ============ -->
 <section class="screen" id="scene">
   <header>
+    <button class="btn" data-cuenta title="Mi cuenta">👤<span class="lb"> Entrar</span></button>
     <button class="btn" id="bVolver" title="Volver a los escenarios">⬅<span class="lb"> Escenarios</span></button>
     <h1 id="sTitle"></h1>
     <div class="sp"></div>
@@ -149,28 +176,87 @@ aside .head small{display:block;color:#ffe2b0;font-weight:400;font-size:12px}
 <img id="ghost" alt="">
 <div class="modal" id="mNuevo"><div class="box"><p>¿Quitar todos los stickers y empezar de nuevo?</p>
   <div class="row"><button class="btn" id="mSi">Sí, empezar</button><button class="btn" id="mNo">No</button></div></div></div>
-<div class="modal" id="mLock"><div class="box"><h3>🔒 Escenario de la suscripción</h3>
-  <p>Este escenario se desbloquea con la suscripción mensual del Instituto Alonso Laoshi, que te da acceso a todas las aplicaciones.</p>
-  <div class="row"><button class="btn rojo" id="mSus">Suscribirme</button><button class="btn" id="mCerrar">Ahora no</button></div></div></div>
+<div class="vmodal" id="vModal" hidden role="dialog" aria-modal="true" aria-labelledby="vTit">
+  <div class="vcaja">
+    <button type="button" class="vcerrar" id="vCerrar" aria-label="Cerrar">×</button>
+    <h2 id="vTit">Desbloquea todas las aplicaciones</h2>
+    <p id="vPor" class="vchico" hidden></p>
+    <div id="vInfo">
+      <p class="vprecio">4 USD al mes</p>
+      <p class="vchico" style="margin-top:0">Con una sola suscripción tienes la versión completa de <b>todas</b> las aplicaciones del Instituto Alonso Laoshi:</p>
+      <ul class="vlista">
+        <li><b>Stickers Chinos:</b> todos los escenarios para decorar.</li>
+        <li><b>Mapa del mundo en chino:</b> audio de todos los estados, provincias y ciudades.</li>
+        <li><b>Trazos Chinos:</b> cualquier carácter, palabras y frases.</li>
+        <li><b>Traductor de audio:</b> 100 audios al mes.</li>
+        <li>Y las aplicaciones nuevas que se agreguen.</li>
+      </ul>
+      <p class="vchico">Los escenarios marcados como GRATIS siguen gratis.</p>
+    </div>
+    <div id="vEntrar" class="vform">
+      <p><b>Paso 1:</b> entra con tu cuenta o crea una gratis. Si ya tienes cuenta en otra app del Instituto Alonso Laoshi, usa la misma.</p>
+      <input type="email" id="vCorreo" placeholder="Tu correo" autocomplete="email">
+      <input type="password" id="vClave" placeholder="Contraseña (mínimo 6)" autocomplete="current-password">
+      <div class="vfila">
+        <button type="button" class="btn rojo" id="vBEntrar">Entrar</button>
+        <button type="button" class="btn" id="vBCrear">Crear cuenta</button>
+      </div>
+      <button type="button" class="vlink" id="vOlvide">¿Olvidaste tu contraseña?</button>
+    </div>
+    <div id="vNueva" class="vform" hidden>
+      <p><b>Escribe tu nueva contraseña.</b></p>
+      <input type="password" id="vClave2" placeholder="Nueva contraseña (mínimo 6)" autocomplete="new-password">
+      <button type="button" class="btn rojo" id="vBGuardar">Guardar contraseña</button>
+    </div>
+    <div id="vPagar" class="vform" hidden>
+      <p><b>Paso 2:</b> suscríbete con PayPal o con tu tarjeta.</p>
+      <p class="vchico">Se cobran 4 USD cada mes y se desbloquean todas las aplicaciones con esta misma cuenta. Puedes cancelar cuando quieras con el botón “Cancelar mi suscripción” que aparece aquí en tu cuenta, y sigues teniendo todo hasta el día que ya pagaste. Si no se puede cobrar un mes, la cuenta regresa sola a la versión gratis.</p>
+      <div id="vPaypal"></div>
+    </div>
+    <div id="vListo" class="vform" hidden>
+      <p class="vmsg ok" style="font-size:1rem">✓ Tienes el Acceso Total: todas las aplicaciones están desbloqueadas.</p>
+      <p id="vFecha"></p>
+      <button type="button" class="vlink" id="vBCancelar">Cancelar mi suscripción</button>
+      <div id="vConfirma" class="bloq" hidden>
+        <span id="vConfirmaTxt"><b>¿Seguro que quieres cancelar?</b></span>
+        <div class="vfila">
+          <button type="button" class="btn" id="vBNo">No, seguir suscrito</button>
+          <button type="button" class="btn rojo" id="vBSi">Sí, cancelar</button>
+        </div>
+      </div>
+    </div>
+    <p class="vmsg" id="vMsg" role="status"></p>
+    <div class="vfila" id="vSesion" hidden>
+      <button type="button" class="btn" id="vBSalir">Cerrar sesión</button>
+    </div>
+    <p class="vchico">¿Algún problema? Escríbenos a <b>institutoalonsolaoshi@gmail.com</b></p>
+  </div>
+</div>
+<div class="vaviso" id="vAviso" role="status" hidden></div>
 
 <script>
 const SCENES=[{"id": "jardin", "es": "Jardín Chino", "zh": "中国花园", "py": "Zhōngguó huāyuán", "free": true, "w": 1672, "h": 941, "thumb": "a/facc4b9e2a68.webp", "bg": "a/51f6c73c7711.jpg", "water": {"src": "a/752262672616.webp", "box": [950, 128, 1575, 910]}, "wf": {"src": "a/b95bbaf3d1d3.png", "box": [1385, 62, 1545, 255], "foam": [1405, 232, 110]}, "cats": [{"id": "edi", "ic": "🏯", "es": "Edificios"}, {"id": "deco", "ic": "🏮", "es": "Decoración"}, {"id": "pla", "ic": "🌸", "es": "Plantas"}, {"id": "per", "ic": "🐼", "es": "Personajes"}], "st": [["edi", "大殿", "dàdiàn", "salón principal", "a/d4c55e2ac9f6.webp", 458, 303], ["edi", "亭子", "tíngzi", "pabellón", "a/ad2dabca235e.webp", 272, 301], ["edi", "房子", "fángzi", "casa", "a/4c44aa6ee4c0.webp", 293, 241], ["edi", "塔", "tǎ", "pagoda", "a/5658caac3b15.webp", 193, 307], ["edi", "大门", "dàmén", "puerta (欢迎 = bienvenido)", "a/ad0762c5b340.webp", 299, 260], ["deco", "石桥", "shíqiáo", "puente de piedra", "a/089aeba34177.webp", 396, 195], ["deco", "木桥", "mùqiáo", "puente de madera", "a/1ab609e8570a.webp", 301, 166], ["deco", "石桌", "shízhuō", "mesa de piedra", "a/2c67e3589317.webp", 220, 157], ["deco", "石灯", "shídēng", "linterna de piedra", "a/cabd99caa16a.webp", 136, 199], ["deco", "石狮子", "shí shīzi", "león de piedra", "a/4864ad1219bd.webp", 188, 205], ["deco", "石头", "shítou", "roca (园林 = jardín)", "a/337e6831d8db.webp", 225, 201], ["pla", "樱花树", "yīnghuā shù", "cerezo", "a/0ced99d9c768.webp", 284, 226], ["pla", "枫树", "fēngshù", "arce", "a/bb3a07e81ac5.webp", 227, 207], ["pla", "松树", "sōngshù", "pino", "a/cd062b51144c.webp", 251, 227], ["pla", "柳树", "liǔshù", "sauce", "a/053c4076b1bb.webp", 223, 215], ["pla", "竹子", "zhúzi", "bambú", "a/a36ca21fc403.webp", 162, 239], ["pla", "绣球花", "xiùqiúhuā", "hortensias", "a/473b8040eaed.webp", 203, 164], ["pla", "黄花", "huánghuā", "flores amarillas", "a/d05c712a4f0c.webp", 170, 166], ["per", "学生", "xuésheng", "estudiante", "a/c12a5bdf5ecc.webp", 112, 290], ["per", "姑娘", "gūniang", "muchacha", "a/ea5d615aa16e.webp", 139, 284], ["per", "老爷爷", "lǎo yéye", "abuelito", "a/7c8f5e0ebebd.webp", 129, 283], ["per", "小孩", "xiǎohái", "niño", "a/0d12a4b107a2.webp", 149, 223], ["per", "熊猫", "xióngmāo", "panda", "a/a1af3a74c9a6.webp", 181, 192], ["per", "仙鹤", "xiānhè", "grulla", "a/8e5365530f29.webp", 173, 210], ["per", "锦鲤", "jǐnlǐ", "pez koi", "a/062d5d866d2b.webp", 159, 149], ["per", "荷花", "héhuā", "flor de loto", "a/8cd29fc02b26.webp", 289, 184], ["deco", "灯笼", "dēnglong", "farol", "a/c314e8a6ce55.webp", 156, 305]]}, {"id": "palacio", "es": "Palacio Imperial", "zh": "皇宫", "py": "huánggōng", "free": true, "w": 1672, "h": 941, "thumb": "a/0fd76dfb484d.webp", "bg": "a/87764d3ebd8d.jpg", "water": {"src": "a/1e86c30b2ad0.webp", "box": [131, 739, 1672, 896]}, "wf": null, "cats": [{"id": "per", "ic": "👑", "es": "Personajes"}, {"id": "nat", "ic": "🌸", "es": "Naturaleza"}, {"id": "deco", "ic": "🏮", "es": "Decoración"}, {"id": "con", "ic": "🏯", "es": "Edificios"}], "st": [["per", "皇帝", "huángdì", "emperador", "a/7976fa83620f.webp", 262, 333], ["per", "皇后", "huánghòu", "emperatriz", "a/894bde056a63.webp", 188, 317], ["per", "大臣", "dàchén", "ministro", "a/04e3e3fb253c.webp", 172, 306], ["per", "公主", "gōngzhǔ", "princesa", "a/07e54d549b20.webp", 157, 300], ["per", "书生", "shūshēng", "estudiante", "a/7ccdf7d10a88.webp", 122, 292], ["per", "士兵", "shìbīng", "soldado", "a/4d23a9015ff9.webp", 162, 329], ["per", "将军", "jiāngjūn", "general", "a/96b20eb3aba8.webp", 149, 309], ["per", "鼓手", "gǔshǒu", "tamborilero", "a/710c0b3f190c.webp", 296, 313], ["nat", "金狮", "jīn shī", "león dorado", "a/f185a578b9bf.webp", 195, 233], ["nat", "麒麟", "qílín", "qilin (animal mítico)", "a/25288d026de0.webp", 184, 211], ["nat", "仙鹤", "xiānhè", "grulla", "a/d1fedc2b0267.webp", 108, 213], ["nat", "樱花树", "yīnghuā shù", "cerezo", "a/6c8012eb6d7e.webp", 250, 209], ["nat", "柳树", "liǔshù", "sauce", "a/78d7f56554de.webp", 208, 207], ["nat", "松树", "sōngshù", "pino", "a/6ee0797d8747.webp", 224, 202], ["nat", "假山", "jiǎshān", "roca decorativa", "a/ecd813346fa4.webp", 142, 165], ["nat", "竹子", "zhúzi", "bambú", "a/13cb757110cc.webp", 147, 205], ["nat", "牡丹", "mǔdan", "peonías", "a/2bf77a9397b2.webp", 184, 168], ["deco", "香炉", "xiānglú", "incensario", "a/39fbe77569b1.webp", 197, 205], ["deco", "宫灯", "gōngdēng", "lámpara del palacio", "a/2488825a964e.webp", 136, 211], ["deco", "石灯", "shídēng", "linterna de piedra", "a/ffdfd1e49602.webp", 126, 207], ["deco", "编钟", "biānzhōng", "campanas", "a/2810862eb534.webp", 203, 186], ["deco", "龙旗", "lóngqí", "bandera del dragón", "a/1ed4dcdad813.webp", 122, 230], ["con", "轿子", "jiàozi", "palanquín", "a/0f31c337332e.webp", 247, 222], ["con", "马车", "mǎchē", "carruaje", "a/25bc0d4ea8b1.webp", 293, 189], ["con", "小桥", "xiǎoqiáo", "puentecito", "a/aea7e434e5a2.webp", 251, 169], ["con", "月亮门", "yuèliàng mén", "puerta de luna", "a/a647c2181721.webp", 337, 240], ["con", "亭子", "tíngzi", "pabellón", "a/d4132975bac7.webp", 242, 261], ["con", "小摊", "xiǎotān", "puesto de mercado", "a/5adcd194410e.webp", 220, 227], ["deco", "遮阳伞", "zhēyángsǎn", "sombrilla con mesa", "a/589edf2edd13.webp", 218, 241], ["con", "瀑布", "pùbù", "cascada", "a/fb456d32f7a3.webp", 375, 240], ["deco", "灯笼", "dēnglong", "faroles", "a/a54e048c8403.webp", 173, 266]]}, {"id": "salon", "es": "Salón de Clases", "zh": "教室", "py": "jiàoshì", "free": false, "w": 1671, "h": 941, "k": 1.0, "thumb": "a/03fdb8fa28ef.webp", "bg": "a/d078341ff2ed.jpg", "video": null, "water": null, "wf": null, "cats": [{"id": "per", "ic": "👩‍🏫", "es": "Personas"}, {"id": "sal", "ic": "🪑", "es": "Salón"}, {"id": "uti", "ic": "✏️", "es": "Útiles"}, {"id": "deco", "ic": "🏮", "es": "Decoración"}], "st": [["per", "老师", "lǎoshī", "maestro", "a/6fb9adbb5d4c.webp", 178, 357], ["per", "女老师", "nǚ lǎoshī", "maestra", "a/3e7c3e6efdba.webp", 197, 352], ["per", "男同学", "nán tóngxué", "compañero", "a/82d936de5ec6.webp", 160, 354], ["per", "女同学", "nǚ tóngxué", "compañera", "a/1d940d413ce5.webp", 157, 339], ["per", "学生", "xuésheng", "estudiante", "a/7c9da5c42bb2.webp", 157, 351], ["per", "女学生", "nǚ xuésheng", "estudiante (chica)", "a/0029908c2c79.webp", 162, 339], ["per", "男孩", "nánhái", "chico de gorra", "a/2f27f102388e.webp", 158, 351], ["per", "他在写字", "tā zài xiě zì", "él está escribiendo", "a/b95918cef782.webp", 189, 309], ["per", "她在看书", "tā zài kàn shū", "ella está leyendo", "a/8f87fb68a379.webp", 192, 314], ["per", "他举手", "tā jǔ shǒu", "él levanta la mano", "a/f66f3a4c0fd1.webp", 173, 211], ["per", "他在想", "tā zài xiǎng", "él está pensando", "a/545a57078380.webp", 159, 204], ["per", "她在想", "tā zài xiǎng", "ella está pensando", "a/882517699ac3.webp", 168, 199], ["per", "他在看书", "tā zài kàn shū", "él está leyendo", "a/aba1d6db9419.webp", 163, 210], ["per", "她在写字", "tā zài xiě zì", "ella está escribiendo", "a/07032af4940f.webp", 159, 210], ["per", "他在写作业", "tā zài xiě zuòyè", "él hace la tarea", "a/ca0bf6b38c71.webp", 168, 207], ["sal", "黑板", "hēibǎn", "pizarrón (汉语课 = clase de chino)", "a/8f685ea7b69c.webp", 368, 179], ["per", "她在学习", "tā zài xuéxí", "ella está estudiando", "a/8732e90692fe.webp", 166, 202], ["sal", "书架", "shūjià", "librero", "a/0bedc5685540.webp", 163, 155], ["sal", "书柜", "shūguì", "vitrina de libros", "a/373c2f3672cb.webp", 160, 163], ["sal", "地球仪", "dìqiúyí", "globo terráqueo", "a/20d227cbc8a5.webp", 126, 164], ["deco", "竹子", "zhúzi", "bambú en maceta", "a/98a12ca0a7d8.webp", 110, 166], ["deco", "梅花", "méihuā", "flor de ciruelo", "a/49e354e378a5.webp", 143, 163], ["sal", "投影仪", "tóuyǐngyí", "proyector", "a/36ee5d3314af.webp", 151, 98], ["sal", "笔记本电脑", "bǐjìběn diànnǎo", "laptop", "a/09e859601b31.webp", 157, 151], ["sal", "课桌", "kèzhuō", "pupitre", "a/7811e40f894c.webp", 191, 168], ["uti", "平板电脑", "píngbǎn diànnǎo", "tableta", "a/a86b32584671.webp", 114, 121], ["sal", "讲桌", "jiǎngzhuō", "escritorio del maestro", "a/60771899bb2f.webp", 223, 167], ["uti", "书", "shū", "libros", "a/90e3eed0eb90.webp", 187, 133], ["uti", "课本", "kèběn", "libro de texto", "a/0b977faeabbf.webp", 216, 113], ["sal", "讲台", "jiǎngtái", "atril", "a/182978c56855.webp", 145, 164], ["uti", "笔记本", "bǐjìběn", "cuaderno", "a/12225e1f7685.webp", 137, 124], ["uti", "钢笔和毛笔", "gāngbǐ hé máobǐ", "pluma y pincel", "a/94c152312f13.webp", 96, 126], ["uti", "笔筒", "bǐtǒng", "portalápices", "a/cd8403a79291.webp", 75, 127], ["uti", "学士帽", "xuéshì mào", "birrete", "a/7066424488c8.webp", 151, 123], ["uti", "毕业证书", "bìyè zhèngshū", "diploma", "a/8463217b1215.webp", 113, 129], ["uti", "熊猫书包", "xióngmāo shūbāo", "mochila de panda", "a/16930ec9c406.webp", 140, 134], ["uti", "龙书包", "lóng shūbāo", "mochila de dragón", "a/f436a239c72c.webp", 140, 136], ["uti", "粉色书包", "fěnsè shūbāo", "mochila rosa", "a/6126711a4ad6.webp", 137, 135], ["deco", "国旗", "guóqí", "bandera", "a/c13654db22e8.webp", 144, 163], ["deco", "灯笼", "dēnglong", "farol", "a/897ebb165694.webp", 120, 155], ["deco", "中国结", "Zhōngguó jié", "nudo chino", "a/92f9148a836f.webp", 107, 162], ["deco", "学", "xué", "estudiar", "a/eb13fb6ebb60.webp", 121, 158], ["deco", "中国地图", "Zhōngguó dìtú", "mapa de China", "a/0c7ab247f5b6.webp", 185, 146], ["deco", "山水画", "shānshuǐhuà", "pintura de paisaje", "a/ffe71c274aa8.webp", 186, 140], ["deco", "圆窗", "yuán chuāng", "ventana redonda", "a/f98a57299830.webp", 155, 154], ["deco", "扇子", "shànzi", "abanico", "a/57bead0db4ee.webp", 186, 133], ["deco", "好好学习，天天向上", "hǎohǎo xuéxí, tiāntiān xiàng shàng", "estudia mucho y mejora cada día", "a/e416a9d6c17e.webp", 281, 148]]}, {"id": "pueblo", "es": "Pueblo de Agua", "zh": "水乡", "py": "shuǐxiāng", "free": false, "w": 1536, "h": 1024, "k": 0.38, "thumb": "a/751faacfbc45.webp", "bg": "a/efcb9ee54eca.jpg", "video": "a/980054389809.mp4", "water": null, "wf": null, "cats": [{"id": "per", "ic": "👨‍🌾", "es": "Personas"}, {"id": "tie", "ic": "🏪", "es": "Tiendas"}, {"id": "nat", "ic": "🦆", "es": "Naturaleza"}, {"id": "pue", "ic": "🏮", "es": "Pueblo"}], "st": [["per", "书生", "shūshēng", "joven letrado", "a/c4c160eb2119.webp", 143, 250], ["per", "姑娘", "gūniang", "muchacha", "a/80819fa533b2.webp", 159, 246], ["per", "小男孩", "xiǎo nánhái", "niño", "a/4423c5dd72f2.webp", 117, 207], ["per", "小女孩", "xiǎo nǚhái", "niña", "a/d731e94a6ae6.webp", 142, 222], ["per", "老爷爷", "lǎo yéye", "abuelito", "a/cd182d5a18a3.webp", 134, 238], ["per", "老奶奶", "lǎo nǎinai", "abuelita", "a/b9598afae106.webp", 132, 229], ["per", "挑夫", "tiāofū", "cargador", "a/e607912b735e.webp", 226, 240], ["per", "厨师", "chúshī", "cocinero", "a/cdcdebcb24c6.webp", 147, 246], ["per", "卖包子的", "mài bāozi de", "vendedora de bollos", "a/8c57622b422e.webp", 150, 239], ["per", "船夫", "chuánfū", "barquero", "a/949a36dd5959.webp", 222, 238], ["per", "木匠", "mùjiang", "carpintero", "a/3b94aa2fddd3.webp", 190, 197], ["per", "她在绣花", "tā zài xiùhuā", "ella está bordando", "a/7ef3b28d8990.webp", 153, 210], ["per", "他在写书法", "tā zài xiě shūfǎ", "él escribe caligrafía", "a/84e4fbf9b9f0.webp", 196, 208], ["per", "他们在喝茶", "tāmen zài hē chá", "ellos toman té", "a/0aac7c17f4ad.webp", 231, 202], ["per", "她在织布", "tā zài zhī bù", "ella teje tela", "a/b4b51f07d473.webp", 230, 211], ["per", "他在剪纸", "tā zài jiǎnzhǐ", "él recorta papel", "a/6456fa7e7071.webp", 181, 208], ["per", "游客", "yóukè", "turista", "a/79525c72c934.webp", 126, 228], ["per", "女游客", "nǚ yóukè", "turista (chica)", "a/cfc2a060eaf3.webp", 140, 219], ["tie", "水果摊", "shuǐguǒ tān", "puesto de fruta", "a/23f439aa2af5.webp", 194, 176], ["tie", "蔬菜摊", "shūcài tān", "puesto de verduras", "a/ed7003d89a95.webp", 187, 174], ["tie", "包子铺", "bāozi pù", "puesto de bollos", "a/76c695daadd9.webp", 182, 166], ["tie", "茶摊", "chá tān", "puesto de té", "a/817b4b05e349.webp", 197, 173], ["tie", "工艺品店", "gōngyìpǐn diàn", "tienda de artesanías", "a/0efc0f90dbe3.webp", 192, 170], ["tie", "花店", "huādiàn", "florería", "a/c38fb75abef4.webp", 183, 171], ["pue", "帆船", "fānchuán", "velero", "a/7897e5861bfd.webp", 187, 145], ["tie", "小吃车", "xiǎochī chē", "carrito de antojitos", "a/cebfa4552ce9.webp", 179, 152], ["pue", "酒坛", "jiǔtán", "tinajas (酒 = licor)", "a/211659a04c60.webp", 217, 143], ["pue", "游船", "yóuchuán", "barco de paseo", "a/da2c4dd088f8.webp", 243, 110], ["nat", "柳树", "liǔshù", "sauce", "a/6b4c2c86e602.webp", 186, 135], ["tie", "木楼", "mùlóu", "casa de madera", "a/073799e60c73.webp", 248, 179], ["nat", "樱花树", "yīnghuā shù", "cerezo", "a/4fa5f1f542db.webp", 171, 134], ["nat", "水牛", "shuǐniú", "búfalo de agua", "a/33a45324b185.webp", 187, 122], ["nat", "小狗", "xiǎogǒu", "perrito", "a/512335e8c467.webp", 89, 100], ["nat", "荷花", "héhuā", "flor de loto", "a/9e3e65a52b22.webp", 176, 109], ["nat", "公鸡", "gōngjī", "gallo", "a/205016519d89.webp", 86, 99], ["nat", "鸭子", "yāzi", "pato", "a/1e5966027e48.webp", 75, 101], ["nat", "假山", "jiǎshān", "rocas", "a/7e9962cbf73d.webp", 160, 111], ["nat", "鸳鸯", "yuānyang", "patos mandarines", "a/5a2f689fa05c.webp", 157, 67], ["nat", "花盆", "huāpén", "maceta con flores", "a/84984ad2dd67.webp", 124, 103], ["pue", "灯笼", "dēnglong", "farol", "a/001954c8450d.webp", 86, 146], ["pue", "石凳", "shídèng", "banca de piedra", "a/0a177e261982.webp", 152, 67], ["pue", "客栈", "kèzhàn", "posada", "a/abaf093c2167.webp", 90, 148], ["pue", "路牌", "lùpái", "letrero de caminos", "a/c3e48a821007.webp", 95, 145], ["pue", "石墩", "shídūn", "banquito de piedra", "a/15478e6c39fa.webp", 56, 52], ["pue", "石桌", "shízhuō", "mesa de piedra", "a/13fbb337d849.webp", 105, 78], ["pue", "石灯", "shídēng", "linterna de piedra", "a/5c1afa46ce4a.webp", 93, 142], ["pue", "石墩", "shídūn", "banquito de piedra", "a/019635d94cce.webp", 57, 52], ["nat", "大树", "dàshù", "árbol grande", "a/4aa93db0b381.webp", 174, 136], ["tie", "商店", "shāngdiàn", "tienda", "a/b87910f57b2c.webp", 223, 162], ["nat", "竹子", "zhúzi", "bambú", "a/b21c37b90b36.webp", 167, 119], ["tie", "茶馆", "cháguǎn", "casa de té", "a/f0b0cfeaf82f.webp", 237, 172], ["tie", "小店", "xiǎodiàn", "tiendita", "a/1c46326952a1.webp", 206, 158], ["pue", "亭子", "tíngzi", "pabellón", "a/265c704cbcb9.webp", 174, 166], ["pue", "石桥", "shíqiáo", "puente de piedra", "a/22f030d2e2ef.webp", 288, 145], ["pue", "水车", "shuǐchē", "rueda de agua", "a/a69cf8e388f6.webp", 177, 163]]}, {"id": "mercado", "es": "Mercado junto al Río", "zh": "河边集市", "py": "hébiān jíshì", "free": false, "w": 1248, "h": 704, "k": 0.7, "thumb": "a/c1a7ee3efeec.webp", "bg": "a/da1a73706f5a.jpg", "video": "a/254d6938f66d.mp4", "water": null, "wf": null, "cats": [{"id": "per", "ic": "👨‍🌾", "es": "Personas"}, {"id": "pue", "ic": "🏪", "es": "Puestos"}, {"id": "nat", "ic": "🐃", "es": "Naturaleza"}, {"id": "cos", "ic": "🏮", "es": "Cosas"}], "st": [["per", "挑夫", "tiāofū", "cargador", "a/56bff89ea8e9.webp", 174, 224], ["per", "姑娘", "gūniang", "muchacha", "a/afa4e5157698.webp", 142, 241], ["per", "书生", "shūshēng", "joven letrado", "a/4a5e5f514a92.webp", 121, 233], ["per", "她在弹琵琶", "tā zài tán pípa", "ella toca la pipa", "a/0ee2654a3cab.webp", 143, 236], ["per", "木匠", "mùjiang", "carpintero", "a/57baf268e095.webp", 158, 214], ["per", "厨师", "chúshī", "cocinero", "a/774f14737aa1.webp", 160, 225], ["per", "卖包子的", "mài bāozi de", "vendedora de bollos", "a/6d45baa277bf.webp", 115, 241], ["per", "老爷爷", "lǎo yéye", "abuelito", "a/5cfc8613ec77.webp", 113, 235], ["per", "老奶奶", "lǎo nǎinai", "abuelita", "a/6b82b5be9b72.webp", 107, 192], ["per", "小男孩", "xiǎo nánhái", "niño", "a/ebbb1308c248.webp", 113, 193], ["per", "小女孩", "xiǎo nǚhái", "niña", "a/e212914098eb.webp", 125, 186], ["pue", "菜车", "càichē", "carrito de verduras", "a/1e5976ca6945.webp", 199, 195], ["pue", "水果车", "shuǐguǒ chē", "carrito de fruta", "a/ff00c8a108b7.webp", 187, 181], ["pue", "茶摊", "chá tān", "puesto de té", "a/59427a1052fb.webp", 196, 194], ["pue", "小吃摊", "xiǎochī tān", "puesto de antojitos", "a/90ffeba1841c.webp", 192, 185], ["pue", "画家", "huàjiā", "pintor", "a/c3cadedda66b.webp", 217, 192], ["pue", "剪纸摊", "jiǎnzhǐ tān", "puesto de papel recortado", "a/f05016ed782d.webp", 160, 189], ["per", "他在编竹筐", "tā zài biān zhúkuāng", "él teje canastas", "a/4127ca58817f.webp", 165, 193], ["pue", "陶器摊", "táoqì tān", "puesto de cerámica", "a/034b57419ef4.webp", 181, 183], ["cos", "游船", "yóuchuán", "barco de paseo", "a/5ad98bc45207.webp", 248, 162], ["per", "船夫", "chuánfū", "barquero", "a/b356d8cfb173.webp", 201, 146], ["cos", "货船", "huòchuán", "barco de carga", "a/108e0018781b.webp", 163, 119], ["per", "渔夫", "yúfū", "pescador", "a/735b52a19d34.webp", 139, 154], ["nat", "鸬鹚", "lúcí", "cormorán", "a/a8e16510fc7b.webp", 83, 113], ["nat", "水牛", "shuǐniú", "búfalo de agua", "a/c654dc59f45a.webp", 186, 134], ["nat", "毛驴", "máolǘ", "burro", "a/41f61492c2c6.webp", 122, 139], ["nat", "小狗", "xiǎogǒu", "perrito", "a/bf62e6a7cf99.webp", 81, 112], ["nat", "小猫", "xiǎomāo", "gatito", "a/24cf07099062.webp", 56, 90], ["nat", "公鸡", "gōngjī", "gallo", "a/fd8c17dbd0eb.webp", 93, 114], ["nat", "母鸡", "mǔjī", "gallina", "a/f1f8702d9443.webp", 77, 93], ["nat", "小鸭子", "xiǎo yāzi", "patitos", "a/4b0ecf48701d.webp", 123, 65], ["nat", "鸭子", "yāzi", "pato", "a/0f641dd79e93.webp", 84, 111], ["cos", "石桥", "shíqiáo", "puente de piedra", "a/1330dd50e77d.webp", 356, 179], ["cos", "石灯", "shídēng", "linterna de piedra", "a/4e191f630c16.webp", 90, 180], ["cos", "灯笼", "dēnglong", "farol", "a/55bcc394db9a.webp", 109, 204], ["cos", "酒旗", "jiǔqí", "bandera de taberna", "a/9d539af2ca16.webp", 80, 196], ["cos", "告示牌", "gàoshi pái", "tablón de avisos", "a/0c1202a4c65b.webp", 167, 193], ["cos", "货物", "huòwù", "mercancía", "a/600de4118dd3.webp", 117, 100], ["cos", "桌椅", "zhuōyǐ", "mesa y bancos", "a/bbaad8b00b50.webp", 203, 108], ["cos", "长椅", "chángyǐ", "banca", "a/6bd21cf7de2f.webp", 119, 82], ["cos", "茶桌", "cházhuō", "mesa de té", "a/47fcef3a02d8.webp", 154, 189], ["cos", "凳子", "dèngzi", "banquito", "a/50680cd14d40.webp", 53, 65], ["pue", "空摊位", "kōng tānwèi", "puesto vacío", "a/b4a5b458a25c.webp", 199, 182], ["cos", "竹筐", "zhúkuāng", "canastas", "a/20cc999b705f.webp", 111, 152], ["nat", "柳树", "liǔshù", "sauce", "a/bd4bff6e010a.webp", 181, 235], ["nat", "樱花树", "yīnghuā shù", "cerezo", "a/c81497c31a61.webp", 170, 216], ["nat", "梅花树", "méihuā shù", "ciruelo en flor", "a/f59826aa804d.webp", 128, 198], ["nat", "竹子", "zhúzi", "bambú", "a/e54fb76ea891.webp", 181, 206], ["nat", "绣球花", "xiùqiúhuā", "hortensias", "a/88f7942ab880.webp", 118, 123], ["nat", "牡丹", "mǔdan", "peonía", "a/0bbd1997a550.webp", 122, 133], ["nat", "水仙花", "shuǐxiānhuā", "narcisos", "a/209f85e73c9d.webp", 97, 144], ["nat", "盆景", "pénjǐng", "bonsái", "a/db4045542e4e.webp", 99, 133], ["cos", "荷花池", "héhuā chí", "estanque de lotos", "a/5c562933d84b.webp", 193, 170], ["cos", "水井", "shuǐjǐng", "pozo", "a/77383347564d.webp", 136, 143], ["cos", "水车", "shuǐchē", "rueda de agua", "a/e125d241deb1.webp", 193, 202], ["cos", "石灯", "shídēng", "linterna de piedra", "a/57cc5b9e4c02.webp", 87, 186]]}, {"id": "futuro", "es": "Ciudad Inteligente", "zh": "智慧城市", "py": "zhìhuì chéngshì", "free": false, "w": 1248, "h": 704, "k": 0.7, "thumb": "a/e6f7ea599d99.webp", "bg": "a/c330273a5704.jpg", "video": "a/ab65db6072ce.mp4", "water": null, "wf": null, "cats": [{"id": "per", "ic": "🧑‍💼", "es": "Personas"}, {"id": "tra", "ic": "🚗", "es": "Transporte"}, {"id": "tec", "ic": "📱", "es": "Tecnología"}, {"id": "ciu", "ic": "🏙️", "es": "Ciudad"}], "st": [["per", "他在看手机", "tā zài kàn shǒujī", "él mira el celular", "a/5ba14ed4764a.webp", 135, 255], ["per", "她在看手机", "tā zài kàn shǒujī", "ella mira el celular", "a/ffd8d541e1af.webp", 112, 251], ["per", "商人", "shāngrén", "hombre de negocios", "a/31d556f1d993.webp", 118, 259], ["per", "白领", "báilǐng", "oficinista", "a/43b029aca15d.webp", 102, 256], ["per", "外卖员", "wàimài yuán", "repartidor de comida", "a/44eb704f5e26.webp", 160, 263], ["per", "快递员", "kuàidì yuán", "repartidor de paquetes", "a/101ce80b82e5.webp", 138, 261], ["per", "医生", "yīshēng", "doctora", "a/be5b4ac4dcee.webp", 131, 255], ["per", "他戴智能眼镜", "tā dài zhìnéng yǎnjìng", "él usa lentes inteligentes", "a/070e4509c380.webp", 134, 253], ["per", "爷爷奶奶", "yéye nǎinai", "abuelos", "a/f8425cba9ee6.webp", 167, 258], ["per", "一家人", "yì jiā rén", "familia", "a/64405b342124.webp", 201, 252], ["per", "游客", "yóukè", "turista", "a/16f2c5895a77.webp", 114, 250], ["per", "旅客", "lǚkè", "viajera", "a/1ef01f3879b4.webp", 125, 246], ["tra", "无人驾驶巴士", "wúrén jiàshǐ bāshì", "autobús sin conductor", "a/8b9907b9f18c.webp", 263, 143], ["tra", "无人驾驶汽车", "wúrén jiàshǐ qìchē", "auto sin conductor", "a/e7022a2a50db.webp", 177, 127], ["tra", "无人小巴", "wúrén xiǎobā", "minibús autónomo", "a/c843069675ee.webp", 151, 132], ["tra", "飞行汽车", "fēixíng qìchē", "auto volador", "a/220313494a68.webp", 268, 127], ["tra", "无人机", "wúrénjī", "dron de entregas", "a/71bc654195bf.webp", 206, 130], ["tra", "共享单车", "gòngxiǎng dānchē", "bici compartida", "a/32cc42991717.webp", 160, 136], ["tra", "电动滑板车", "diàndòng huábǎnchē", "scooter eléctrico", "a/066ab09b9830.webp", 117, 132], ["tra", "送货机器人", "sònghuò jīqìrén", "robot repartidor", "a/3df9ce860351.webp", 124, 114], ["tra", "扫地机器人", "sǎodì jīqìrén", "robot barrendero", "a/caa6e1ffd8b9.webp", 159, 124], ["tec", "智能地图", "zhìnéng dìtú", "mapa inteligente", "a/b3ba29a01992.webp", 155, 148], ["tec", "自助机", "zìzhù jī", "quiosco de autoservicio", "a/27e73e7bc66b.webp", 103, 153], ["tec", "全息屏幕", "quánxī píngmù", "pantalla holográfica", "a/026cacf0ba0e.webp", 198, 130], ["tec", "智能眼镜", "zhìnéng yǎnjìng", "lentes inteligentes", "a/707f32880286.webp", 148, 70], ["tec", "VR眼镜", "VR yǎnjìng", "lentes de realidad virtual", "a/d1cb0bb23b2e.webp", 134, 92], ["tec", "智能手表", "zhìnéng shǒubiǎo", "reloj inteligente", "a/9d03cc4b7ed7.webp", 106, 132], ["tec", "智能手机", "zhìnéng shǒujī", "celular", "a/b3db8996cad6.webp", 97, 122], ["tec", "笔记本电脑", "bǐjìběn diànnǎo", "laptop", "a/a67529d6634d.webp", 186, 112], ["tec", "平板电脑", "píngbǎn diànnǎo", "tableta", "a/ed9ae68fe43c.webp", 142, 96], ["tec", "耳机", "ěrjī", "audífonos", "a/27f0f0fa7e50.webp", 101, 103], ["tec", "充电桩", "chōngdiànzhuāng", "cargador de autos", "a/1f97a2488238.webp", 121, 159], ["ciu", "购物袋", "gòuwù dài", "bolsas de compras", "a/14418a44cc13.webp", 162, 122], ["tec", "广告屏", "guǎnggào píng", "pantalla de anuncios", "a/ec9609bbfe40.webp", 239, 155], ["ciu", "快递", "kuàidì", "paquete", "a/081765771fce.webp", 135, 104], ["ciu", "公交车站", "gōngjiāo chēzhàn", "parada de autobús", "a/7628a59bb1f3.webp", 240, 165], ["ciu", "外卖包", "wàimài bāo", "mochila de comida", "a/b348fbaf50b0.webp", 136, 130], ["ciu", "花坛", "huātán", "jardinera", "a/b01b67ecc4f3.webp", 152, 140], ["ciu", "奶茶", "nǎichá", "té de burbujas", "a/a71c24e5554a.webp", 75, 127], ["ciu", "炒面", "chǎomiàn", "fideos fritos", "a/d453c3b7170b.webp", 108, 129], ["ciu", "盒饭", "héfàn", "comida en recipiente", "a/0ab089236608.webp", 114, 118], ["ciu", "小卖部", "xiǎomàibù", "puesto de comida", "a/43985b612e46.webp", 178, 131], ["ciu", "路灯", "lùdēng", "farol de la calle", "a/ba7564be8f3f.webp", 79, 199], ["ciu", "樱花树", "yīnghuā shù", "cerezo", "a/432ae9d60c81.webp", 155, 162], ["tec", "自动售货机", "zìdòng shòuhuòjī", "máquina expendedora", "a/73e9bc446efa.webp", 123, 130], ["ciu", "大树", "dàshù", "árbol", "a/8e56f2f9cfdb.webp", 154, 159], ["ciu", "紫色的花", "zǐsè de huā", "flores moradas", "a/13ab8baf096e.webp", 152, 129], ["tec", "快递柜", "kuàidì guì", "lockers de paquetes", "a/f6d1d76ff060.webp", 181, 133], ["ciu", "灌木", "guànmù", "arbustos", "a/345402e69e9d.webp", 135, 122], ["ciu", "垃圾桶", "lājītǒng", "botes de basura", "a/2fb95a3193a8.webp", 220, 119], ["ciu", "喷泉", "pēnquán", "fuente", "a/e1c9b831488a.webp", 193, 146], ["ciu", "地铁", "dìtiě", "metro", "a/16a9dcb8ac28.webp", 197, 86], ["ciu", "公交车", "gōngjiāochē", "autobús", "a/bc73ac410a75.webp", 185, 84], ["ciu", "停车场", "tíngchēchǎng", "estacionamiento", "a/1a91eecd9280.webp", 196, 85], ["ciu", "餐厅", "cāntīng", "restaurante", "a/2c2f48da621b.webp", 173, 84], ["ciu", "长椅", "chángyǐ", "banca", "a/d329b8904a25.webp", 176, 107], ["ciu", "商店", "shāngdiàn", "tienda", "a/18ac62f0c86a.webp", 147, 84], ["ciu", "信息中心", "xìnxī zhōngxīn", "centro de información", "a/de8de462361c.webp", 212, 84], ["ciu", "充电站", "chōngdiànzhàn", "estación de carga", "a/7c1ddad95d6f.webp", 189, 84], ["ciu", "卫生间", "wèishēngjiān", "baños", "a/ee00f9886df2.webp", 168, 84], ["ciu", "出口", "chūkǒu", "salida", "a/5278814d66ce.webp", 172, 85]]}];
-/* Aquí se conecta la cuenta y la suscripción de la tienda.
-   Mientras no esté conectada, solo se abren los escenarios gratis. */
-const ACCESO={suscrito:false, urlSuscripcion:"#"};
+/* Cuenta y suscripción: es la misma del Mapa, Trazos Chinos y el Traductor (Acceso Total). */
+const CFG={
+  motor:"https://mapa-chino-motor.onrender.com",
+  supabaseUrl:"https://kbzcgebinhkvsvgsyxdg.supabase.co",
+  supabaseKey:"sb_publishable_-HeiBwdDYaBsWRK1g0CHvw_IyFj0zzn",
+  paypalClientId:"BAA-WKZEUtRKdA9-hbFJ9HhtX2RjiwZr0NK3askgVr8wrcNob09E02hKQTbhP328KOyFNBPIhP1lNB8_1w"
+};
+const ACCESO={suscrito:false};
 const puedeUsar=sc=>sc.free||ACCESO.suscrito;
 
 const $=s=>document.querySelector(s);
 const board=$("#board"),layer=$("#layer"),tools=$("#tools"),grid=$("#grid"),ghost=$("#ghost"),cv=$("#cv"),cx=cv.getContext("2d");
 let K=0.5;
-let S=null,ST=[],NW=1672,NH=941,items=[],sel=null,zTop=1,uid=1,voz=true,agua=true,cat=null,locked=false;
+let abierta=-1,S=null,ST=[],NW=1672,NH=941,items=[],sel=null,zTop=1,uid=1,voz=true,agua=true,cat=null,locked=false;
 
 /* ---------- inicio ---------- */
 function home(){
   $("#cards").innerHTML=SCENES.map((s,i)=>`
     <div class="card" data-i="${i}">
       <span class="n">${i+1}</span>
-      <span class="badge ${s.free?'free':'lock'}">${s.free?'GRATIS':'🔒 Suscripción'}</span>
+      <span class="badge ${s.free?'free':(ACCESO.suscrito?'ok':'lock')}">${s.free?'GRATIS':(ACCESO.suscrito?'✓ Desbloqueado':'🔒 Suscripción')}</span>
       <img src="${s.thumb}" alt="">
       <div class="txt"><div class="zh">${s.zh}</div><div class="py">${s.py}</div><div class="es">${s.es}</div></div>
     </div>`).join("");
@@ -181,7 +267,7 @@ $("#bVolver").onclick=()=>{stopAnim();show("home")};
 
 /* ---------- abrir escenario ---------- */
 function open(i){
-  S=SCENES[i];locked=!puedeUsar(S);
+  abierta=i;S=SCENES[i];locked=!puedeUsar(S);
   ST=S.st.map((a,k)=>({i:k,cat:a[0],zh:a[1],py:a[2],es:a[3],src:a[4],w:a[5],h:a[6]}));
   NW=S.w;NH=S.h;cv.width=NW;cv.height=NH;K=S.k||0.5;
   $("#sTitle").innerHTML=`${S.es} <span>${S.zh}</span>`;
@@ -227,10 +313,8 @@ function sheet(){
     grid.appendChild(d);
   });
 }
-function lockMsg(){clearTimeout(lockMsg.t);lockMsg.t=setTimeout(()=>$("#mLock").style.display="flex",900)}
-document.querySelectorAll("[data-unlock]").forEach(b=>b.onclick=()=>$("#mLock").style.display="flex");
-$("#mCerrar").onclick=()=>$("#mLock").style.display="none";
-$("#mSus").onclick=()=>{if(ACCESO.urlSuscripcion&&ACCESO.urlSuscripcion!="#")location.href=ACCESO.urlSuscripcion;else $("#mLock").style.display="none"};
+function lockMsg(){clearTimeout(lockMsg.t);lockMsg.t=setTimeout(()=>abrirVenta(),900)}
+document.querySelectorAll("[data-unlock]").forEach(b=>b.onclick=()=>abrirVenta());
 
 /* ---------- arrastrar desde la hoja ---------- */
 function startNew(e,s){
@@ -402,6 +486,137 @@ $("#bFoto").onclick=async()=>{
     document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)},"image/png");
 };
 
+/* ==================== Cuenta y suscripción (Acceso Total) ==================== */
+const SUS={estado:null,hasta:null};
+const fechaBonita=h=>{try{return new Date(h).toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"})}catch(e){return""}};
+let sb=null,sesion=null;
+try{if(window.supabase&&CFG.supabaseUrl)sb=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey)}catch(e){sb=null}
+const tokenDe=()=>sesion&&sesion.access_token;
+try{ACCESO.suscrito=localStorage.getItem("stickersSus")==="1"}catch(e){}
+let avisoT=0;
+function aviso(txt,ms){const a=$("#vAviso");a.textContent=txt;a.hidden=false;clearTimeout(avisoT);if(ms!==0)avisoT=setTimeout(()=>{a.hidden=true},ms||3500)}
+function pintaCuenta(){
+  document.querySelectorAll("[data-cuenta]").forEach(b=>{
+    const lb=b.querySelector(".lb");
+    const txt=ACCESO.suscrito?"✓ Versión completa":(sesion?"⭐ Versión completa":"👤 Entrar");
+    if(lb){b.firstChild.textContent=txt.split(" ")[0];lb.textContent=" "+txt.split(" ").slice(1).join(" ")}else b.textContent=txt;
+    b.classList.toggle("sus",ACCESO.suscrito);
+  });
+}
+function ponSus(ok){
+  const antes=ACCESO.suscrito;ACCESO.suscrito=!!ok;
+  try{localStorage.setItem("stickersSus",ACCESO.suscrito?"1":"0")}catch(e){}
+  pintaCuenta();
+  if(antes!==ACCESO.suscrito){home();if($("#scene").classList.contains("on")&&abierta>=0)open(abierta)}
+}
+async function motor(ruta,op={}){
+  const h=Object.assign({},op.headers||{});const t=tokenDe();if(t)h.Authorization="Bearer "+t;
+  const lento=setTimeout(()=>aviso("Despertando el servidor… la primera vez puede tardar hasta un minuto.",0),2500);
+  try{return await fetch(CFG.motor+ruta,Object.assign({},op,{headers:h}))}
+  finally{clearTimeout(lento);if($("#vAviso").textContent.startsWith("Despertando"))$("#vAviso").hidden=true}
+}
+async function revisarSuscripcion(){
+  if(!sesion){ponSus(false);return}
+  try{const r=await motor("/estado");if(!r.ok)throw 0;const d=await r.json();SUS.estado=d.estado||null;SUS.hasta=d.hasta||null;ponSus(d.suscrito)}
+  catch(e){pintaCuenta()}
+  pintaVenta();
+}
+const vM=$("#vModal"),vMsg=$("#vMsg");
+const msgV=(t,ok)=>{vMsg.textContent=t||"";vMsg.className="vmsg"+(ok?" ok":"")};
+let modoClave=false;
+function pintaVenta(){
+  const conSesion=!!sesion,ok=ACCESO.suscrito;
+  $("#vEntrar").hidden=conSesion||modoClave;$("#vNueva").hidden=!modoClave;
+  $("#vPagar").hidden=!conSesion||ok||modoClave;$("#vListo").hidden=!(conSesion&&ok);
+  $("#vSesion").hidden=!conSesion;$("#vInfo").hidden=conSesion&&ok;
+  $("#vTit").textContent=conSesion&&ok?"Mi cuenta":"Desbloquea todas las aplicaciones";
+  const f=SUS.hasta?fechaBonita(SUS.hasta):"",cancelada=SUS.estado==="cancelada";
+  $("#vFecha").innerHTML=cancelada
+    ?"Tu suscripción está <b>cancelada</b>: ya no se te va a cobrar. Puedes seguir usando todas las aplicaciones"+(f?" hasta el <b>"+f+"</b>":" hasta que termine el mes que pagaste")+"."
+    :"Tu suscripción está activa."+(f?" Próximo cobro: <b>"+f+"</b>.":"");
+  $("#vBCancelar").hidden=cancelada||!SUS.estado;if(cancelada||!SUS.estado)$("#vConfirma").hidden=true;
+  if(conSesion&&sesion.user){$("#vPor").hidden=false;$("#vPor").textContent="Cuenta: "+(sesion.user.email||"")}else $("#vPor").hidden=true;
+  if(conSesion&&!ok&&!modoClave)ponerPaypal();
+}
+function abrirVenta(motivo){
+  msgV(motivo||"");if(!sb)msgV("No se pudo cargar el inicio de sesión. Revisa tu internet y recarga la página.");
+  pintaVenta();vM.hidden=false;fetch(CFG.motor+"/salud").catch(()=>{});
+}
+const cerrarVenta=()=>{vM.hidden=true};
+$("#vCerrar").onclick=cerrarVenta;
+vM.addEventListener("click",e=>{if(e.target===vM)cerrarVenta()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!vM.hidden)cerrarVenta()});
+document.querySelectorAll("[data-cuenta]").forEach(b=>b.onclick=()=>abrirVenta());
+const datosForm=()=>({email:$("#vCorreo").value.trim(),password:$("#vClave").value});
+function revisaForm(d,nueva){
+  if(!/^\S+@\S+\.\S+$/.test(d.email)){msgV("Escribe un correo válido.");return false}
+  if(!d.password){msgV("Escribe tu contraseña.");return false}
+  if(nueva&&d.password.length<6){msgV("La contraseña debe tener al menos 6 letras o números.");return false}
+  return true;
+}
+const traduce=m=>/Invalid login/i.test(m)?"Correo o contraseña incorrectos."
+  :/already registered|already exists/i.test(m)?"Ese correo ya tiene cuenta. Usa “Entrar”."
+  :/Email not confirmed/i.test(m)?"Falta confirmar tu correo: revisa tu bandeja (y spam) y da clic en el enlace."
+  :/rate limit|security purposes/i.test(m)?"Espera un minuto y vuelve a intentar.":m;
+$("#vBEntrar").onclick=async()=>{const d=datosForm();if(!sb||!revisaForm(d))return;msgV("Entrando…",true);
+  const {error}=await sb.auth.signInWithPassword(d);if(error)msgV(traduce(error.message));else msgV("")};
+$("#vBCrear").onclick=async()=>{const d=datosForm();if(!sb||!revisaForm(d,true))return;msgV("Creando tu cuenta…",true);
+  const {data,error}=await sb.auth.signUp({email:d.email,password:d.password,options:{emailRedirectTo:location.origin+location.pathname}});
+  if(error)return msgV(traduce(error.message));
+  if(!data.session)msgV("Te mandamos un correo para confirmar tu cuenta. Da clic en el enlace y luego entra aquí.",true)};
+$("#vOlvide").onclick=async()=>{const email=$("#vCorreo").value.trim();
+  if(!/^\S+@\S+\.\S+$/.test(email))return msgV("Escribe tu correo arriba y vuelve a dar clic aquí.");if(!sb)return;
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  msgV(error?traduce(error.message):"Te mandamos un correo para cambiar tu contraseña.",!error)};
+$("#vBGuardar").onclick=async()=>{const p=$("#vClave2").value;
+  if(!p||p.length<6)return msgV("La contraseña debe tener al menos 6 letras o números.");
+  const {error}=await sb.auth.updateUser({password:p});if(error)return msgV(traduce(error.message));
+  modoClave=false;msgV("✓ Contraseña cambiada.",true);pintaVenta()};
+$("#vBSalir").onclick=async()=>{if(sb)await sb.auth.signOut();msgV("")};
+$("#vBCancelar").onclick=()=>{const f=SUS.hasta?fechaBonita(SUS.hasta):"";
+  $("#vConfirmaTxt").innerHTML="<b>¿Seguro que quieres cancelar?</b> Se cancela en todas las aplicaciones. Ya no se te cobrará, y las conservas"+(f?" hasta el "+f:" hasta que termine el mes que pagaste")+".";
+  $("#vConfirma").hidden=false;$("#vBCancelar").hidden=true;msgV("")};
+$("#vBNo").onclick=()=>{$("#vConfirma").hidden=true;$("#vBCancelar").hidden=false};
+$("#vBSi").onclick=async()=>{const b=$("#vBSi");b.disabled=true;msgV("Cancelando…",true);
+  try{const r=await motor("/cancelar",{method:"POST"});const j=await r.json().catch(()=>({}));
+    if(!r.ok){msgV(j.detail||"No se pudo cancelar. Intenta de nuevo en unos minutos.");return}
+    SUS.estado="cancelada";SUS.hasta=j.hasta||SUS.hasta;$("#vConfirma").hidden=true;pintaVenta();
+    const f=SUS.hasta?fechaBonita(SUS.hasta):"";
+    msgV("✓ Tu suscripción quedó cancelada."+(f?" Puedes seguir usando todas las aplicaciones hasta el "+f+".":""),true)}
+  catch(e){msgV("No se pudo conectar. Revisa tu internet e intenta de nuevo.")}
+  finally{b.disabled=false}};
+let ppEstado=0,planTotal="";
+async function ponerPaypal(){
+  if(ppEstado)return;ppEstado=1;
+  try{const r=await motor("/planes");const j=await r.json();planTotal=j.total||""}catch(e){}
+  if(!CFG.paypalClientId||!/^P-/.test(planTotal)){ppEstado=0;msgV("La suscripción estará disponible muy pronto.");return}
+  const s=document.createElement("script");
+  s.src="https://www.paypal.com/sdk/js?client-id="+encodeURIComponent(CFG.paypalClientId)+"&vault=true&intent=subscription&locale=es_MX";
+  s.onerror=()=>{ppEstado=0;msgV("No se pudo cargar PayPal. Revisa tu internet y vuelve a abrir esta ventana.")};
+  s.onload=()=>{ppEstado=2;
+    window.paypal.Buttons({style:{shape:"pill",label:"subscribe"},
+      createSubscription:(d,a)=>a.subscription.create({plan_id:planTotal,custom_id:sesion.user.id,
+        application_context:{brand_name:"Alonso Laoshi",shipping_preference:"NO_SHIPPING"}}),
+      onApprove:async d=>{msgV("Activando tu versión completa…",true);
+        try{const r=await motor("/paypal/confirmar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id_suscripcion:d.subscriptionID})});
+          const j=await r.json().catch(()=>({}));
+          if(r.ok){SUS.estado="activa";SUS.hasta=null;ponSus(true);msgV("");pintaVenta();aviso("✓ ¡Listo! Ya tienes todos los escenarios desbloqueados.");revisarSuscripcion()}
+          else msgV((j.detail||"No se pudo activar todavía.")+" Si ya pagaste, se activará sola en unos minutos.")}
+        catch(e){msgV("Tu pago se hizo, pero no pudimos activarla todavía. Se activará sola en unos minutos; recarga la página.");setTimeout(revisarSuscripcion,60000)}},
+      onError:()=>msgV("Hubo un problema con PayPal. No se hizo ningún cargo; intenta de nuevo.")
+    }).render("#vPaypal")};
+  document.head.appendChild(s);
+}
+if(sb){
+  sb.auth.onAuthStateChange((ev,s)=>{
+    sesion=s;
+    if(ev==="PASSWORD_RECOVERY"){modoClave=true;abrirVenta("")}
+    if(ev==="SIGNED_OUT"){SUS.estado=SUS.hasta=null;ponSus(false)}
+    if(ev==="SIGNED_IN"||ev==="INITIAL_SESSION"||ev==="TOKEN_REFRESHED"){if(s)revisarSuscripcion();else ponSus(false)}
+    pintaCuenta();if(!vM.hidden)pintaVenta();
+  });
+}else ponSus(false);
+pintaCuenta();
 home();
 </script>
 </body>
