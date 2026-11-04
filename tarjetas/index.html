@@ -1,0 +1,1061 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tarjetas Chinas · Instituto Alonso Laoshi</title>
+<meta name="description" content="Haz tus propias tarjetas de estudio de chino: carácter con trazos de colores, pinyin, traducción y audio. Estudia, juega memorama e imprímelas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@700;900&family=Figtree:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.29.5/dist/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{
+  --laca:#8E1616; --laca-osc:#5E0C0E; --bermellon:#C8281E;
+  --oro:#D4A64A; --oro-claro:#F0D38C;
+  --tinta:#22140F; --tinta-2:#5B4A41;
+  --arroz:#FFFCF6; --seda:#F5ECDD; --linea:#E8D9BF; --jade:#2E7D5B;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--arroz);color:var(--tinta);font:16.5px/1.55 "Figtree",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.han{font-family:"Noto Serif SC","SimSun","Songti SC",serif}
+h1,h2,h3{font-family:"Zen Old Mincho","Noto Serif SC",serif;margin:0;line-height:1.2}
+button{font-family:inherit}
+:focus-visible{outline:3px solid var(--oro);outline-offset:2px;border-radius:6px}
+.envoltura{max-width:1000px;margin:0 auto;padding:0 16px}
+
+/* barra */
+.barra{background:linear-gradient(160deg,var(--laca),var(--laca-osc));color:#fff;border-bottom:3px solid var(--oro)}
+.barra .envoltura{display:flex;align-items:center;gap:12px;height:66px}
+.sello{width:42px;height:42px;border-radius:8px;background:var(--bermellon);display:grid;place-items:center;font-weight:900;font-size:22px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.3)}
+.barra b{font-family:"Zen Old Mincho",serif;font-size:19px;display:block;line-height:1.1}
+.barra small{color:var(--oro-claro);font-size:13px}
+.plan-chip{margin-left:auto;font-size:13px;font-weight:700;border-radius:999px;padding:5px 12px;background:rgba(255,255,255,.12);color:var(--oro-claro);white-space:nowrap}
+.plan-chip.pago{background:var(--oro);color:#3A0B08}
+
+/* pestañas */
+.pestanas{display:flex;gap:6px;overflow-x:auto;padding:14px 0 0;scrollbar-width:none}
+.pestanas button{flex:none;border:0;background:var(--seda);color:var(--tinta-2);font-weight:700;font-size:15.5px;padding:10px 18px;border-radius:12px 12px 0 0;cursor:pointer}
+.pestanas button[aria-selected="true"]{background:#fff;color:var(--laca);box-shadow:0 -3px 0 var(--bermellon) inset}
+.panel{background:#fff;border:1px solid var(--linea);border-radius:0 16px 16px 16px;padding:22px 18px 26px;margin-bottom:30px;min-height:420px}
+.panel[hidden]{display:none}
+.panel h2{font-size:24px;margin-bottom:4px}
+.sub{color:var(--tinta-2);margin:0 0 18px}
+
+/* botones */
+.boton{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;padding:12px 22px;font-weight:700;font-size:16px;cursor:pointer;background:var(--bermellon);color:#fff;transition:background .15s,transform .08s}
+.boton:hover{background:#A91F17}
+.boton:active{transform:scale(.97)}
+.boton:disabled{opacity:.5;cursor:not-allowed}
+.boton.oro{background:linear-gradient(180deg,#E7BE62,#C9952E);color:#3A0B08}
+.boton.claro{background:var(--seda);color:var(--tinta)}
+.boton.claro:hover{background:#EADDC6}
+.boton.verde{background:var(--jade)}
+.boton.verde:hover{background:#246649}
+.boton.chico{padding:8px 14px;font-size:14.5px}
+
+/* agregar */
+.agregar{display:flex;gap:10px;flex-wrap:wrap}
+.agregar input{flex:1 1 220px;font-size:28px;padding:10px 16px;border:2px solid var(--linea);border-radius:14px;background:var(--arroz);font-family:"Noto Serif SC",serif;min-width:0}
+.agregar input:focus{border-color:var(--oro);outline:0}
+.aviso{margin:10px 0 0;font-size:14.5px;color:var(--tinta-2)}
+.aviso.error{color:var(--bermellon);font-weight:600}
+.contador{display:inline-block;font-size:14px;font-weight:700;background:var(--seda);border-radius:999px;padding:3px 12px;color:var(--tinta-2)}
+
+.vista-previa{margin-top:18px;border:2px dashed var(--oro);border-radius:16px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;background:#FFFBF0}
+.vista-previa[hidden]{display:none}
+.campo{display:block;margin-bottom:10px}
+.campo span{display:block;font-size:13.5px;font-weight:700;color:var(--tinta-2);margin-bottom:3px}
+.campo input{width:100%;font:inherit;font-size:17px;padding:9px 12px;border:1.5px solid var(--linea);border-radius:10px;background:#fff}
+.campo input:focus{border-color:var(--oro);outline:0}
+@media (max-width:560px){.vista-previa{grid-template-columns:1fr;justify-items:center}.vista-previa .campos{width:100%}}
+
+/* casillas con trazos */
+.trazos{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.casilla{width:var(--t,110px);height:var(--t,110px);background:#fff;border:1.5px solid #E9B6AE;border-radius:6px;position:relative;display:grid;place-items:center}
+.casilla svg{width:100%;height:100%;display:block}
+.casilla .letra{font-size:calc(var(--t,110px) * .78);line-height:1;font-weight:600}
+
+/* lista de tarjetas */
+.lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:22px}
+.mini{border:1px solid var(--linea);border-radius:14px;padding:12px 10px 10px;text-align:center;position:relative;background:var(--arroz)}
+.mini .h{font-size:34px;font-weight:600;line-height:1.2}
+.mini .p{color:var(--bermellon);font-weight:700;font-size:14.5px}
+.mini .e{color:var(--tinta-2);font-size:14px;line-height:1.3;min-height:1.3em}
+.mini .acciones{display:flex;justify-content:center;gap:4px;margin-top:8px}
+.mini .acciones button{border:0;background:var(--seda);border-radius:8px;padding:5px 9px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--tinta-2)}
+.mini .acciones button:hover{background:#EADDC6}
+.mini.bloqueada{opacity:.55}
+.mini .candado{position:absolute;top:6px;right:8px;font-size:12px;font-weight:700;color:#8A5A0B;background:#FFF1D2;border-radius:999px;padding:1px 8px}
+.vacio{text-align:center;color:var(--tinta-2);padding:40px 10px}
+.vacio .han{font-size:64px;color:var(--oro);display:block;line-height:1}
+
+/* tarjeta que se voltea */
+.mesa{display:grid;place-items:center;gap:16px;margin-top:6px}
+.progreso{font-weight:700;color:var(--tinta-2)}
+.tarjeta{width:min(360px,88vw);aspect-ratio:3/4;perspective:1200px;cursor:pointer;border:0;padding:0;background:none}
+.tarjeta .giro{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.3,.1,.2,1);transform-style:preserve-3d}
+.tarjeta.volteada .giro{transform:rotateY(180deg)}
+.cara{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;
+  box-shadow:0 18px 40px -16px rgba(94,12,14,.45)}
+.cara.frente{background:#fff;border:3px solid var(--oro)}
+.cara.atras{background:linear-gradient(160deg,var(--laca),var(--laca-osc));color:#fff;transform:rotateY(180deg);border:3px solid var(--oro)}
+.cara.atras .h{font-size:34px;font-weight:600;color:var(--oro-claro)}
+.cara.atras .p{font-size:30px;font-weight:700}
+.cara.atras .e{font-size:22px;color:#F7E2D4;text-align:center;line-height:1.3}
+.cara .pista{position:absolute;bottom:12px;font-size:13px;color:var(--tinta-2);opacity:.8}
+.cara.atras .pista{color:var(--oro-claro)}
+.audio{border:0;background:var(--oro);color:#3A0B08;border-radius:999px;padding:9px 16px;font-weight:700;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.audio:hover{background:var(--oro-claro)}
+.botonera{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.final{text-align:center;padding:30px 10px}
+.final .han{font-size:80px;color:var(--bermellon);line-height:1;display:block;margin-bottom:10px}
+
+/* memorama */
+.memo-barra{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.memo-datos{display:flex;gap:10px;flex-wrap:wrap}
+.memo-datos span{background:var(--seda);border-radius:999px;padding:5px 14px;font-weight:700;font-size:14.5px}
+.memo-tablero{display:grid;grid-template-columns:repeat(var(--cols,4),1fr);gap:10px;max-width:640px;margin:0 auto}
+.ficha{aspect-ratio:3/4;perspective:800px;border:0;padding:0;background:none;cursor:pointer}
+.ficha .giro{position:relative;width:100%;height:100%;transition:transform .4s;transform-style:preserve-3d}
+.ficha.abierta .giro,.ficha.lista .giro{transform:rotateY(180deg)}
+.ficha .lado{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px;text-align:center}
+.ficha .lomo{background:linear-gradient(160deg,var(--laca),var(--laca-osc));border:2px solid var(--oro);color:var(--oro-claro);font-size:clamp(22px,5vw,34px);font-weight:900}
+.ficha .cara-f{background:#fff;border:2px solid var(--oro);transform:rotateY(180deg)}
+.ficha .cara-f .h{font-weight:600;line-height:1.1}
+.ficha .cara-f .p{color:var(--bermellon);font-weight:700;font-size:clamp(12px,2.6vw,16px)}
+.ficha .cara-f .e{color:var(--tinta-2);font-size:clamp(11px,2.3vw,14px);line-height:1.2}
+.ficha.lista .cara-f{background:#F1F8F3;border-color:var(--jade)}
+.ficha.mal .cara-f{animation:temblar .35s}
+@keyframes temblar{25%{transform:rotateY(180deg) translateX(-5px)}75%{transform:rotateY(180deg) translateX(5px)}}
+@media (prefers-reduced-motion:reduce){.tarjeta .giro,.ficha .giro{transition:none}.ficha.mal .cara-f{animation:none}}
+
+/* imprimir (pantalla) */
+.opciones{display:flex;flex-wrap:wrap;gap:20px;margin-bottom:16px}
+.grupo b{display:block;font-size:14px;color:var(--tinta-2);margin-bottom:6px}
+.segmentos{display:inline-flex;background:var(--seda);border-radius:12px;padding:4px;gap:4px}
+.segmentos button{border:0;background:none;padding:8px 16px;border-radius:9px;font-weight:700;font-size:15px;cursor:pointer;color:var(--tinta-2)}
+.segmentos button[aria-pressed="true"]{background:#fff;color:var(--laca);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.instrucciones{background:#FFFBF0;border:1px solid #EBD6A6;border-radius:14px;padding:14px 16px;margin:16px 0}
+.instrucciones h3{font-size:17px;margin-bottom:6px}
+.instrucciones ol{margin:0;padding-left:20px}
+.instrucciones li{margin-bottom:4px}
+.muestra{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.muestra figure{margin:0;text-align:center;font-size:13.5px;color:var(--tinta-2)}
+.hoja-mini{aspect-ratio:215.9/279.4;background:#fff;border:1px solid var(--linea);box-shadow:0 4px 12px rgba(0,0,0,.08);padding:4%;display:grid;gap:0;margin-bottom:6px}
+.hoja-mini div{border:1px dashed #C9B48C;display:grid;place-items:center;overflow:hidden;line-height:1.1;text-align:center}
+.hoja-mini .h{font-weight:600}
+.hoja-mini .p{color:var(--bermellon);font-weight:700}
+
+/* ventanas */
+.velo{position:fixed;inset:0;z-index:50;background:rgba(34,20,15,.6);display:none;place-items:center;padding:18px}
+.velo.on{display:grid}
+.caja{background:var(--arroz);border-radius:20px;max-width:420px;width:100%;padding:28px 24px;text-align:center;border-top:6px solid var(--oro)}
+.caja .han{font-size:54px;color:var(--bermellon);line-height:1;display:block;margin-bottom:8px}
+.caja h3{font-size:22px;margin-bottom:8px}
+.caja p{margin:0 0 18px;color:var(--tinta-2)}
+.caja .botonera{flex-direction:column}
+
+footer{text-align:center;color:var(--tinta-2);font-size:13.5px;padding:0 16px 30px}
+.prueba{display:inline-flex;align-items:center;gap:8px;margin-top:8px;background:#FFF1D2;border-radius:999px;padding:5px 14px;color:#8A5A0B;font-weight:600;cursor:pointer}
+
+/* cuenta */
+.cuenta-btn{border:1px solid rgba(240,211,140,.6);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:6px 12px;font-weight:700;font-size:13.5px;cursor:pointer;white-space:nowrap}
+.cuenta-btn:hover{background:rgba(255,255,255,.2)}
+.cuenta-btn.sus{background:var(--oro);color:#3A0B08;border-color:var(--oro)}
+@media (max-width:480px){.barra small{display:none}.plan-chip{display:none}.cuenta-btn{margin-left:auto}}
+.vmodal{position:fixed;inset:0;z-index:60;background:rgba(34,20,15,.6);display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow:auto}
+.vmodal[hidden]{display:none}
+.vcaja{background:var(--arroz);border-top:6px solid var(--oro);border-radius:20px;max-width:440px;width:100%;margin:auto;padding:20px 22px 16px;display:flex;flex-direction:column;gap:12px}
+.vcaja [hidden]{display:none!important}
+.vcaja h2{font-size:22px;color:var(--laca)}
+.vcaja p{margin:0}
+.vcerrar{align-self:flex-end;border:none;background:none;font-size:1.6rem;line-height:1;margin:-8px -6px -10px 0;color:var(--tinta-2);cursor:pointer}
+.vprecio{font-size:1.5rem;font-weight:700;color:var(--bermellon)}
+.vlista{margin:0;padding-left:20px;font-size:.92rem}
+.vform{display:flex;flex-direction:column;gap:8px}
+.vform input{border:1.5px solid var(--linea);border-radius:10px;padding:10px 12px;background:#fff;font:inherit;font-size:1rem;width:100%}
+.vfila{display:flex;gap:8px;flex-wrap:wrap}
+.vfila .boton{flex:1;padding:10px 12px;font-size:15px}
+.vmsg{font-size:.9rem;color:var(--bermellon);min-height:1em}
+.vmsg.ok{color:var(--jade)}
+.vchico{font-size:.82rem;color:var(--tinta-2)}
+.vlink{background:none;border:none;padding:0;color:var(--bermellon);text-decoration:underline;font-size:.88rem;align-self:flex-start;cursor:pointer}
+.bloq{background:#FFF1D2;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;font-size:.9rem}
+#vPaypal{background:#fffaf0;border:1px solid #e3cf9a;border-radius:12px;padding:12px 12px 4px}
+#vPaypal:empty{display:none}
+.vaviso{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:70;background:var(--tinta);color:var(--arroz);padding:9px 16px;border-radius:999px;font-size:.9rem;max-width:calc(100% - 32px);text-align:center}
+.vaviso[hidden]{display:none}
+
+/* ============ HOJAS PARA IMPRIMIR ============ */
+#hojas{display:none}
+@media print{
+  body.imprimiendo > *:not(#hojas){display:none!important}
+  body.imprimiendo #hojas{display:block}
+  body.imprimiendo{background:#fff}
+  .hoja{position:relative;overflow:hidden;page-break-after:always;break-after:page}
+  .hoja:last-child{page-break-after:auto;break-after:auto}
+  .celda{position:absolute;border:0.3mm dashed #9A8A70;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#000;padding:3mm}
+  .celda .h{font-family:"Noto Serif SC","SimSun",serif;font-weight:600;line-height:1}
+  .celda .p{font-family:"Figtree",sans-serif;font-weight:700;line-height:1.15}
+  .celda .e{font-family:"Figtree",sans-serif;line-height:1.2;margin-top:1.5mm}
+  .celda .marca{position:absolute;bottom:1.5mm;right:2mm;font:600 6pt "Figtree",sans-serif;color:#9A8A70}
+}
+</style>
+<style id="tamanoPagina"></style>
+</head>
+<body>
+
+<header class="barra">
+  <div class="envoltura">
+    <span class="sello han" aria-hidden="true">卡</span>
+    <span><b>Tarjetas Chinas</b><small>Instituto Alonso Laoshi</small></span>
+    <span class="plan-chip" id="planChip">Gratis</span>
+    <button class="cuenta-btn" id="btnCuenta" type="button">👤 Entrar</button>
+  </div>
+</header>
+
+<main class="envoltura">
+  <nav class="pestanas" role="tablist" aria-label="Secciones">
+    <button role="tab" aria-selected="true" data-tab="mis">Mis tarjetas</button>
+    <button role="tab" aria-selected="false" data-tab="estudiar">Estudiar</button>
+    <button role="tab" aria-selected="false" data-tab="memorama">Memorama</button>
+    <button role="tab" aria-selected="false" data-tab="imprimir">Imprimir</button>
+  </nav>
+
+  <!-- ============ MIS TARJETAS ============ -->
+  <section class="panel" id="tab-mis" role="tabpanel">
+    <h2>Mis tarjetas</h2>
+    <p class="sub">Escribe en chino la palabra que quieres aprender y se hace tu tarjeta. <span class="contador" id="contador"></span></p>
+    <form class="agregar" id="formAgregar" autocomplete="off">
+      <input id="entrada" class="han" placeholder="学习" maxlength="8" aria-label="Palabra en chino">
+      <button class="boton" type="submit">Hacer tarjeta</button>
+    </form>
+    <p class="aviso" id="avisoAgregar">Gratis: palabras de un carácter, hasta 6 tarjetas.</p>
+
+    <div class="vista-previa" id="vistaPrevia" hidden>
+      <div class="trazos" id="previaTrazos" style="--t:120px"></div>
+      <div class="campos">
+        <label class="campo"><span>Pinyin</span><input id="previaPinyin"></label>
+        <label class="campo"><span>Traducción al español</span><input id="previaEs" placeholder="Escribe la traducción"></label>
+        <p class="aviso" id="avisoTrad" style="margin:-4px 0 12px"></p>
+        <div class="botonera" style="justify-content:flex-start">
+          <button class="boton verde" id="guardarTarjeta" type="button">Guardar tarjeta</button>
+          <button class="boton claro" id="cancelarTarjeta" type="button">Cancelar</button>
+          <button class="audio" id="previaAudio" type="button">🔊 Escuchar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="lista" id="lista"></div>
+  </section>
+
+  <!-- ============ ESTUDIAR ============ -->
+  <section class="panel" id="tab-estudiar" role="tabpanel" hidden>
+    <h2>Estudiar</h2>
+    <p class="sub">Mira el carácter, intenta recordar, y toca la tarjeta para voltearla.</p>
+    <div id="zonaEstudio"></div>
+  </section>
+
+  <!-- ============ MEMORAMA ============ -->
+  <section class="panel" id="tab-memorama" role="tabpanel" hidden>
+    <h2>Memorama</h2>
+    <p class="sub">Junta cada carácter con su pinyin y traducción.</p>
+    <div id="zonaMemo"></div>
+  </section>
+
+  <!-- ============ IMPRIMIR ============ -->
+  <section class="panel" id="tab-imprimir" role="tabpanel" hidden>
+    <h2>Imprimir mis tarjetas</h2>
+    <p class="sub">Se imprimen por los dos lados: al frente el carácter y atrás el pinyin con la traducción. Al recortar, cada una coincide.</p>
+    <div id="zonaImprimir"></div>
+  </section>
+</main>
+
+<footer>
+  © <span id="anio">2026</span> Instituto Alonso Laoshi · ¿Algún problema? Escribe a institutoalonsolaoshi@gmail.com
+  <br>
+</footer>
+
+<!-- aviso de plan mensual -->
+<div class="velo" id="veloPlan" role="dialog" aria-modal="true" aria-labelledby="planTit">
+  <div class="caja">
+    <span class="han" aria-hidden="true">锁</span>
+    <h3 id="planTit">Esto es del plan mensual</h3>
+    <p id="planTxt"></p>
+    <div class="botonera">
+      <a class="boton oro" id="verPlan" href="#">Ver el plan mensual</a>
+      <button class="boton claro" type="button" data-cerrar>Seguir con lo gratis</button>
+    </div>
+  </div>
+</div>
+
+<div class="vmodal" id="vModal" hidden role="dialog" aria-modal="true" aria-labelledby="vTit">
+  <div class="vcaja">
+    <button type="button" class="vcerrar" id="vCerrar" aria-label="Cerrar">×</button>
+    <h2 id="vTit">Desbloquea todas las aplicaciones</h2>
+    <p id="vPor" class="vchico" hidden></p>
+    <div id="vInfo">
+      <p class="vprecio">4 USD al mes</p>
+      <p class="vchico" style="margin-top:0">Con una sola suscripción tienes la versión completa de <b>todas</b> las aplicaciones del Instituto Alonso Laoshi:</p>
+      <ul class="vlista">
+        <li><b>Tarjetas Chinas:</b> palabras de 2, 3 o 4 caracteres y todas las tarjetas que quieras.</li>
+        <li><b>Stickers Chinos:</b> todos los escenarios para decorar.</li>
+        <li><b>Mapa del mundo en chino:</b> audio de todos los estados, provincias y ciudades.</li>
+        <li><b>Trazos Chinos:</b> cualquier carácter, palabras y frases.</li>
+        <li><b>Traductor de audio:</b> 100 audios al mes.</li>
+        <li>Y las aplicaciones nuevas que se agreguen.</li>
+      </ul>
+      <p class="vchico">Gratis sigues teniendo 6 tarjetas de un carácter, con memorama y PDF.</p>
+    </div>
+    <div id="vEntrar" class="vform">
+      <p><b>Paso 1:</b> entra con tu cuenta o crea una gratis. Si ya tienes cuenta en otra app del Instituto Alonso Laoshi, usa la misma.</p>
+      <input type="email" id="vCorreo" placeholder="Tu correo" autocomplete="email">
+      <input type="password" id="vClave" placeholder="Contraseña (mínimo 6)" autocomplete="current-password">
+      <div class="vfila">
+        <button type="button" class="boton" id="vBEntrar">Entrar</button>
+        <button type="button" class="boton claro" id="vBCrear">Crear cuenta</button>
+      </div>
+      <button type="button" class="vlink" id="vOlvide">¿Olvidaste tu contraseña?</button>
+    </div>
+    <div id="vNueva" class="vform" hidden>
+      <p><b>Escribe tu nueva contraseña.</b></p>
+      <input type="password" id="vClave2" placeholder="Nueva contraseña (mínimo 6)" autocomplete="new-password">
+      <button type="button" class="boton" id="vBGuardar">Guardar contraseña</button>
+    </div>
+    <div id="vPagar" class="vform" hidden>
+      <p><b>Paso 2:</b> suscríbete con PayPal o con tu tarjeta.</p>
+      <p class="vchico">Se cobran 4 USD cada mes y se desbloquean todas las aplicaciones con esta misma cuenta. Puedes cancelar cuando quieras con el botón “Cancelar mi suscripción” que aparece aquí en tu cuenta, y sigues teniendo todo hasta el día que ya pagaste. Si no se puede cobrar un mes, la cuenta regresa sola a la versión gratis.</p>
+      <div id="vPaypal"></div>
+    </div>
+    <div id="vListo" class="vform" hidden>
+      <p class="vmsg ok" style="font-size:1rem">✓ Tienes el Acceso Total: todas las aplicaciones están desbloqueadas.</p>
+      <p id="vFecha"></p>
+      <button type="button" class="vlink" id="vBCancelar">Cancelar mi suscripción</button>
+      <div id="vConfirma" class="bloq" hidden>
+        <span id="vConfirmaTxt"><b>¿Seguro que quieres cancelar?</b></span>
+        <div class="vfila">
+          <button type="button" class="boton claro" id="vBNo">No, seguir suscrito</button>
+          <button type="button" class="boton" id="vBSi">Sí, cancelar</button>
+        </div>
+      </div>
+    </div>
+    <p class="vmsg" id="vMsg" role="status"></p>
+    <div class="vfila" id="vSesion" hidden>
+      <button type="button" class="boton claro" id="vBSalir">Cerrar sesión</button>
+    </div>
+    <p class="vchico">¿Algún problema? Escríbenos a <b>institutoalonsolaoshi@gmail.com</b></p>
+  </div>
+</div>
+<div class="vaviso" id="vAviso" role="status" hidden></div>
+
+<!-- hojas que se imprimen (no se ven en pantalla) -->
+<div id="hojas"></div>
+
+<script>
+// =====================================================================
+// AJUSTES
+// =====================================================================
+const GRATIS_MAX_TARJETAS = 6;   // tarjetas gratis
+const GRATIS_MAX_CARACTERES = 1; // gratis: solo palabras de 1 carácter
+const PLAN_MAX_CARACTERES = 4;   // plan mensual: palabras de hasta 4 caracteres
+const CLAVE_GUARDADO = "tarjetas_chinas_v1";
+
+// ¿Tiene plan mensual? Es el Acceso Total (la misma suscripción y la misma cuenta de las demás apps).
+const CFG = {
+  motor: "https://mapa-chino-motor.onrender.com",
+  supabaseUrl: "https://kbzcgebinhkvsvgsyxdg.supabase.co",
+  supabaseKey: "sb_publishable_-HeiBwdDYaBsWRK1g0CHvw_IyFj0zzn",
+  paypalClientId: "BAA-WKZEUtRKdA9-hbFJ9HhtX2RjiwZr0NK3askgVr8wrcNob09E02hKQTbhP328KOyFNBPIhP1lNB8_1w"
+};
+let SUSCRITO = false;
+try { SUSCRITO = localStorage.getItem("tarjetasSus") === "1"; } catch (e) {}
+function tienePlan() { return SUSCRITO; }
+
+const COLORES = ["#C8281E","#E08A1E","#2E7D5B","#2563A8","#7A3FA0","#C2185B",
+                 "#00838F","#8D6E00","#5D4037","#455A64","#D84315","#1565C0"];
+
+// Pequeño diccionario para que la traducción salga al instante en palabras comunes.
+const DICCIONARIO = {
+"爱":"amar","八":"ocho","爸爸":"papá","杯子":"vaso","北京":"Pekín","不":"no","不客气":"de nada","菜":"platillo, verdura","茶":"té","吃":"comer","吃饭":"comer","出租车":"taxi","打电话":"llamar por teléfono","大":"grande","点":"punto; en punto (hora)","电脑":"computadora","电视":"televisión","电影":"película","东西":"cosa","都":"todos","读":"leer","对不起":"perdón","多":"mucho","多少":"cuánto","儿子":"hijo","二":"dos","饭店":"restaurante, hotel","飞机":"avión","分钟":"minuto","高兴":"contento","工作":"trabajo; trabajar","狗":"perro","汉语":"idioma chino","好":"bien, bueno","喝":"beber","和":"y","很":"muy","回":"regresar","会":"saber hacer, poder","几":"cuántos","家":"casa, familia","叫":"llamarse","今天":"hoy","九":"nueve","开":"abrir; manejar","看":"ver, mirar","来":"venir","老师":"maestro","冷":"frío","六":"seis","妈妈":"mamá","买":"comprar","猫":"gato","没关系":"no pasa nada","没有":"no tener","米饭":"arroz","名字":"nombre","明天":"mañana","哪儿":"¿dónde?","那":"ese, aquel","能":"poder","你":"tú","你好":"hola","年":"año","女儿":"hija","朋友":"amigo","漂亮":"bonito","苹果":"manzana","七":"siete","钱":"dinero","请":"por favor; invitar","去":"ir","热":"caliente, calor","人":"persona","认识":"conocer","三":"tres","商店":"tienda","上":"arriba; subir","上午":"mañana (antes del mediodía)","少":"poco","谁":"¿quién?","什么":"¿qué?","十":"diez","是":"ser","书":"libro","水":"agua","水果":"fruta","睡觉":"dormir","说":"hablar, decir","四":"cuatro","他":"él","她":"ella","太":"demasiado","天":"cielo; día","天气":"clima","听":"escuchar","同学":"compañero de clase","我":"yo","我们":"nosotros","五":"cinco","喜欢":"gustar","下":"abajo; bajar","下午":"tarde","下雨":"llover","先生":"señor","现在":"ahora","想":"querer; pensar","小":"pequeño","小姐":"señorita","写":"escribir","谢谢":"gracias","星期":"semana","学":"aprender","学生":"estudiante","学习":"estudiar","学校":"escuela","一":"uno","衣服":"ropa","医生":"médico","医院":"hospital","椅子":"silla","有":"tener, haber","月":"mes; luna","在":"estar en","再见":"adiós","怎么":"¿cómo?","怎么样":"¿qué tal?","这":"este","中国":"China","中文":"idioma chino","中午":"mediodía","住":"vivir","桌子":"mesa","字":"carácter, letra","昨天":"ayer","坐":"sentarse","做":"hacer","日":"sol; día","山":"montaña","火":"fuego","木":"árbol, madera","口":"boca","手":"mano","心":"corazón","龙":"dragón","福":"buena fortuna","白":"blanco","红":"rojo","黑":"negro","新":"nuevo","生日":"cumpleaños","快乐":"feliz","墨西哥":"México","早上好":"buenos días","晚上":"noche","米":"arroz; metro","月亮":"luna","太阳":"sol","猫咪":"gatito","女":"mujer","男":"hombre","马":"caballo","鱼":"pez","鸟":"pájaro","花":"flor","门":"puerta","车":"carro","雨":"lluvia","雪":"nieve","风":"viento","云":"nube","石":"piedra","田":"campo de cultivo","力":"fuerza","目":"ojo","耳":"oreja","足":"pie","牛":"vaca, toro","羊":"borrego","家人":"familia","哥哥":"hermano mayor","姐姐":"hermana mayor","弟弟":"hermano menor","妹妹":"hermana menor","爷爷":"abuelo (paterno)","奶奶":"abuela (paterna)"
+};
+
+// =====================================================================
+// GUARDADO (en la memoria del navegador del alumno)
+// =====================================================================
+let tarjetas = [];
+function cargar() {
+  try { tarjetas = JSON.parse(localStorage.getItem(CLAVE_GUARDADO)) || []; }
+  catch (e) { tarjetas = []; }
+}
+function guardar() {
+  try { localStorage.setItem(CLAVE_GUARDADO, JSON.stringify(tarjetas)); } catch (e) {}
+}
+// Las tarjetas que se pueden usar con el plan actual.
+function disponibles() {
+  if (tienePlan()) return tarjetas.slice();
+  return tarjetas.filter(t => largo(t.hanzi) <= GRATIS_MAX_CARACTERES).slice(0, GRATIS_MAX_TARJETAS);
+}
+const largo = s => Array.from(s).length;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const barajar = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+// =====================================================================
+// TRAZOS DE COLORES
+// =====================================================================
+const cacheTrazos = {};
+function datosTrazos(ch) {
+  if (!cacheTrazos[ch]) {
+    cacheTrazos[ch] = fetch("https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0/" + encodeURIComponent(ch) + ".json")
+      .then(r => { if (!r.ok) throw 0; return r.json(); })
+      .catch(() => { delete cacheTrazos[ch]; return null; });
+  }
+  return cacheTrazos[ch];
+}
+function svgDe(datos) {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "0 0 1024 1024");
+  let guias = "";
+  [["0","512","1024","512"],["512","0","512","1024"],["0","0","1024","1024"],["1024","0","0","1024"]].forEach(([a,b,c,d]) => {
+    guias += `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#F0C9C2" stroke-width="5" stroke-dasharray="22 16"/>`;
+  });
+  let trazos = "", numeros = "";
+  datos.strokes.forEach((d, i) => {
+    const color = COLORES[i % COLORES.length];
+    trazos += `<path d="${d}" fill="${color}"/>`;
+  });
+  svg.innerHTML = guias + `<g transform="translate(0,900) scale(1,-1)">${trazos}</g>` + numeros;
+  return svg;
+}
+// Dibuja la palabra con trazos de colores dentro de "caja".
+function pintarTrazos(caja, hanzi) {
+  caja.innerHTML = "";
+  Array.from(hanzi).forEach(ch => {
+    const casilla = document.createElement("div");
+    casilla.className = "casilla";
+    casilla.innerHTML = `<span class="letra han">${esc(ch)}</span>`;
+    caja.appendChild(casilla);
+    datosTrazos(ch).then(d => { if (d) { casilla.innerHTML = ""; casilla.appendChild(svgDe(d)); } });
+  });
+}
+// Tamaño de cada casilla según cuántos caracteres tiene la palabra.
+function tamanoCasilla(n, ancho) { return Math.min(150, Math.floor((ancho - (n - 1) * 6) / n)); }
+
+// =====================================================================
+// AUDIO
+// =====================================================================
+let vozChina = null;
+function buscarVoz() {
+  const voces = speechSynthesis.getVoices();
+  vozChina = voces.find(v => /zh[-_]CN/i.test(v.lang)) || voces.find(v => /^zh/i.test(v.lang)) || null;
+}
+if ("speechSynthesis" in window) { buscarVoz(); speechSynthesis.onvoiceschanged = buscarVoz; }
+function hablar(texto) {
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(texto);
+  u.lang = "zh-CN"; u.rate = 0.8;
+  if (vozChina) u.voice = vozChina;
+  speechSynthesis.speak(u);
+}
+
+// =====================================================================
+// PINYIN Y TRADUCCIÓN
+// =====================================================================
+function sacarPinyin(hanzi) {
+  try { return pinyinPro.pinyin(hanzi, { type: "string" }).replace(/\s+/g, " ").trim(); }
+  catch (e) { return ""; }
+}
+async function sacarTraduccion(hanzi) {
+  if (DICCIONARIO[hanzi]) return { texto: DICCIONARIO[hanzi], revisar: false };
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 7000);
+    const r = await fetch("https://api.mymemory.translated.net/get?langpair=zh-CN|es&q=" + encodeURIComponent(hanzi), { signal: ctrl.signal });
+    clearTimeout(t);
+    const j = await r.json();
+    const texto = (j && j.responseData && j.responseData.translatedText || "").trim();
+    if (texto && !/[一-鿿]/.test(texto) && !/MYMEMORY|QUERY/i.test(texto)) return { texto: texto.toLowerCase(), revisar: true };
+  } catch (e) {}
+  return { texto: "", revisar: true };
+}
+
+// =====================================================================
+// AVISO DE PLAN MENSUAL
+// =====================================================================
+const veloPlan = document.getElementById("veloPlan");
+function pedirPlan(motivo) {
+  document.getElementById("planTxt").textContent = motivo;
+  veloPlan.classList.add("on");
+}
+veloPlan.addEventListener("click", e => { if (e.target === veloPlan || e.target.hasAttribute("data-cerrar")) veloPlan.classList.remove("on"); });
+document.getElementById("verPlan").onclick = e => { e.preventDefault(); veloPlan.classList.remove("on"); abrirVenta(); };
+document.addEventListener("keydown", e => { if (e.key === "Escape") veloPlan.classList.remove("on"); });
+
+// =====================================================================
+// PESTAÑAS
+// =====================================================================
+const pestanas = document.querySelectorAll("[data-tab]");
+function abrirPestana(nombre) {
+  pestanas.forEach(b => b.setAttribute("aria-selected", b.dataset.tab === nombre));
+  document.querySelectorAll(".panel").forEach(p => p.hidden = p.id !== "tab-" + nombre);
+  if (nombre === "mis") pintarLista();
+  if (nombre === "estudiar") empezarEstudio();
+  if (nombre === "memorama") pintarMemoInicio();
+  if (nombre === "imprimir") pintarImprimir();
+}
+pestanas.forEach(b => b.addEventListener("click", () => abrirPestana(b.dataset.tab)));
+
+// =====================================================================
+// MIS TARJETAS
+// =====================================================================
+const entrada = document.getElementById("entrada");
+const avisoAgregar = document.getElementById("avisoAgregar");
+const vistaPrevia = document.getElementById("vistaPrevia");
+let enPrevia = null, editandoId = null;
+
+function textoAvisoBase() {
+  return tienePlan()
+    ? `Plan mensual: palabras de 1 a ${PLAN_MAX_CARACTERES} caracteres, sin límite de tarjetas.`
+    : `Gratis: palabras de un carácter, hasta ${GRATIS_MAX_TARJETAS} tarjetas.`;
+}
+function ponerAviso(texto, error) {
+  avisoAgregar.textContent = texto;
+  avisoAgregar.classList.toggle("error", !!error);
+}
+
+document.getElementById("formAgregar").addEventListener("submit", async e => {
+  e.preventDefault();
+  const hanzi = entrada.value.replace(/\s+/g, "");
+  if (!hanzi) return;
+  if (!/^\p{Script=Han}+$/u.test(hanzi)) return ponerAviso("Escribe solo caracteres chinos, sin pinyin ni letras.", true);
+  const n = largo(hanzi);
+  if (n > PLAN_MAX_CARACTERES) return ponerAviso(`Las tarjetas son de máximo ${PLAN_MAX_CARACTERES} caracteres.`, true);
+  if (!tienePlan() && n > GRATIS_MAX_CARACTERES)
+    return pedirPlan(`Con la versión gratis las tarjetas son de un solo carácter. Para hacer tarjetas de palabras de 2, 3 o 4 caracteres, como "${hanzi}", necesitas el plan mensual.`);
+  if (!tienePlan() && tarjetas.length >= GRATIS_MAX_TARJETAS)
+    return pedirPlan(`Ya tienes tus ${GRATIS_MAX_TARJETAS} tarjetas gratis. Con el plan mensual puedes hacer todas las que quieras.`);
+  if (tarjetas.some(t => t.hanzi === hanzi)) return ponerAviso(`Ya tienes una tarjeta de ${hanzi}.`, true);
+
+  ponerAviso(textoAvisoBase());
+  editandoId = null;
+  mostrarPrevia(hanzi, sacarPinyin(hanzi), "");
+  const avisoTrad = document.getElementById("avisoTrad");
+  avisoTrad.textContent = "Buscando la traducción…";
+  const tr = await sacarTraduccion(hanzi);
+  if (enPrevia !== hanzi) return;
+  const campoEs = document.getElementById("previaEs");
+  if (!campoEs.value) campoEs.value = tr.texto;
+  avisoTrad.textContent = tr.texto
+    ? (tr.revisar ? "Traducción automática: revísala y corrígela si hace falta." : "")
+    : "No encontré la traducción. Escríbela tú.";
+});
+
+function mostrarPrevia(hanzi, pinyin, es) {
+  enPrevia = hanzi;
+  const caja = document.getElementById("previaTrazos");
+  caja.style.setProperty("--t", tamanoCasilla(largo(hanzi), Math.min(300, vistaPrevia.parentElement.clientWidth - 60)) + "px");
+  pintarTrazos(caja, hanzi);
+  document.getElementById("previaPinyin").value = pinyin;
+  document.getElementById("previaEs").value = es;
+  document.getElementById("avisoTrad").textContent = "";
+  vistaPrevia.hidden = false;
+  vistaPrevia.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+function cerrarPrevia() { vistaPrevia.hidden = true; enPrevia = null; editandoId = null; }
+
+document.getElementById("guardarTarjeta").onclick = () => {
+  if (!enPrevia) return;
+  const pinyin = document.getElementById("previaPinyin").value.trim();
+  const es = document.getElementById("previaEs").value.trim();
+  if (!es) { document.getElementById("avisoTrad").textContent = "Escribe la traducción antes de guardar."; return; }
+  if (editandoId) {
+    const t = tarjetas.find(x => x.id === editandoId);
+    if (t) { t.pinyin = pinyin; t.es = es; }
+  } else {
+    tarjetas.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), hanzi: enPrevia, pinyin, es });
+  }
+  guardar();
+  cerrarPrevia();
+  entrada.value = "";
+  pintarLista();
+  entrada.focus();
+};
+document.getElementById("cancelarTarjeta").onclick = cerrarPrevia;
+document.getElementById("previaAudio").onclick = () => enPrevia && hablar(enPrevia);
+
+function pintarLista() {
+  const lista = document.getElementById("lista");
+  const libres = new Set(disponibles().map(t => t.id));
+  document.getElementById("contador").textContent = tienePlan()
+    ? `${tarjetas.length} tarjetas`
+    : `${Math.min(tarjetas.length, GRATIS_MAX_TARJETAS)} de ${GRATIS_MAX_TARJETAS} gratis`;
+  ponerAviso(textoAvisoBase());
+  if (!tarjetas.length) {
+    lista.innerHTML = `<div class="vacio" style="grid-column:1/-1"><span class="han">学</span>Todavía no tienes tarjetas. Escribe arriba tu primera palabra en chino.</div>`;
+    return;
+  }
+  lista.innerHTML = tarjetas.slice().reverse().map(t => `
+    <div class="mini${libres.has(t.id) ? "" : " bloqueada"}">
+      ${libres.has(t.id) ? "" : `<span class="candado">plan mensual</span>`}
+      <div class="h han">${esc(t.hanzi)}</div>
+      <div class="p">${esc(t.pinyin)}</div>
+      <div class="e">${esc(t.es)}</div>
+      <div class="acciones">
+        <button type="button" data-oir="${t.id}" aria-label="Escuchar">🔊</button>
+        <button type="button" data-editar="${t.id}">Editar</button>
+        <button type="button" data-borrar="${t.id}">Borrar</button>
+      </div>
+    </div>`).join("");
+}
+document.getElementById("lista").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const id = b.dataset.oir || b.dataset.editar || b.dataset.borrar;
+  const t = tarjetas.find(x => x.id === id); if (!t) return;
+  if (b.dataset.oir) hablar(t.hanzi);
+  if (b.dataset.editar) { mostrarPrevia(t.hanzi, t.pinyin, t.es); editandoId = t.id; }
+  if (b.dataset.borrar && confirm(`¿Borrar la tarjeta ${t.hanzi}?`)) {
+    tarjetas = tarjetas.filter(x => x.id !== id); guardar(); pintarLista();
+    if (editandoId === id) cerrarPrevia();
+  }
+});
+
+// =====================================================================
+// ESTUDIAR
+// =====================================================================
+const zonaEstudio = document.getElementById("zonaEstudio");
+let fila = [], sabidas = 0, total = 0;
+
+function sinTarjetas(zona, minimo) {
+  zona.innerHTML = `<div class="vacio"><span class="han">卡</span>Necesitas al menos ${minimo} tarjeta${minimo > 1 ? "s" : ""}.<br><br>
+    <button class="boton" type="button" onclick="abrirPestana('mis')">Hacer tarjetas</button></div>`;
+}
+function empezarEstudio() {
+  const cartas = disponibles();
+  if (!cartas.length) return sinTarjetas(zonaEstudio, 1);
+  fila = barajar(cartas); sabidas = 0; total = cartas.length;
+  mostrarEstudio();
+}
+function mostrarEstudio() {
+  if (!fila.length) {
+    zonaEstudio.innerHTML = `<div class="final"><span class="han">棒</span><h3>¡Muy bien! Terminaste</h3>
+      <p class="sub" style="margin-top:8px">Repasaste tus ${total} tarjetas.</p>
+      <button class="boton" type="button" id="otraVez">Estudiar otra vez</button></div>`;
+    document.getElementById("otraVez").onclick = empezarEstudio;
+    return;
+  }
+  const t = fila[0];
+  zonaEstudio.innerHTML = `
+    <div class="mesa">
+      <div class="progreso">Te sabes ${sabidas} de ${total} · faltan ${fila.length}</div>
+      <button class="tarjeta" type="button" id="tarjeta" aria-label="Voltear tarjeta">
+        <div class="giro">
+          <div class="cara frente"><div class="trazos" id="frenteTrazos"></div><span class="pista">Toca para voltear</span></div>
+          <div class="cara atras">
+            <div class="h han">${esc(t.hanzi)}</div>
+            <div class="p">${esc(t.pinyin)}</div>
+            <div class="e">${esc(t.es)}</div>
+            <span class="pista">Toca para regresar</span>
+          </div>
+        </div>
+      </button>
+      <div class="botonera">
+        <button class="audio" type="button" id="oirEstudio">🔊 Escuchar</button>
+      </div>
+      <div class="botonera" id="respuesta" style="visibility:hidden">
+        <button class="boton claro" type="button" id="repasar">Repasar otra vez</button>
+        <button class="boton verde" type="button" id="meLaSe">Ya me la sé</button>
+      </div>
+    </div>`;
+  const frente = document.getElementById("frenteTrazos");
+  const anchoTarjeta = Math.min(360, window.innerWidth * .88) - 50;
+  frente.style.setProperty("--t", tamanoCasilla(largo(t.hanzi), anchoTarjeta) + "px");
+  pintarTrazos(frente, t.hanzi);
+  const tarjeta = document.getElementById("tarjeta");
+  tarjeta.onclick = () => {
+    tarjeta.classList.toggle("volteada");
+    document.getElementById("respuesta").style.visibility = "visible";
+  };
+  document.getElementById("oirEstudio").onclick = () => hablar(t.hanzi);
+  document.getElementById("repasar").onclick = () => { fila.push(fila.shift()); mostrarEstudio(); };
+  document.getElementById("meLaSe").onclick = () => { fila.shift(); sabidas++; mostrarEstudio(); };
+}
+
+// =====================================================================
+// MEMORAMA
+// =====================================================================
+const zonaMemo = document.getElementById("zonaMemo");
+let memo = null;
+
+function pintarMemoInicio() {
+  const cartas = disponibles();
+  if (cartas.length < 2) return sinTarjetas(zonaMemo, 2);
+  const opciones = [3, 4, 6, 8, 10, 12].filter(n => n <= cartas.length);
+  if (!opciones.includes(cartas.length) && cartas.length <= 12) opciones.push(cartas.length);
+  const porDefecto = Math.min(cartas.length, 6);
+  zonaMemo.innerHTML = `
+    <div class="final" style="padding-top:10px">
+      <span class="han">记</span>
+      <p class="sub">Tienes ${cartas.length} tarjetas. ¿Cuántas parejas quieres jugar?</p>
+      <div class="segmentos" id="parejas" style="margin-bottom:18px">
+        ${opciones.sort((a, b) => a - b).map(n => `<button type="button" data-n="${n}" aria-pressed="${n === porDefecto}">${n}</button>`).join("")}
+      </div><br>
+      <button class="boton" type="button" id="jugar">Jugar</button>
+    </div>`;
+  let elegidas = porDefecto;
+  document.getElementById("parejas").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    elegidas = +b.dataset.n;
+    document.querySelectorAll("#parejas button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  });
+  document.getElementById("jugar").onclick = () => jugarMemo(barajar(cartas).slice(0, elegidas));
+}
+
+function jugarMemo(cartas) {
+  const fichas = barajar(cartas.flatMap(t => [{ t, tipo: "h" }, { t, tipo: "s" }]));
+  const n = fichas.length;
+  const cols = n <= 6 ? 3 : n <= 16 ? 4 : n <= 20 ? 5 : 6;
+  memo = { abiertas: [], parejas: 0, total: cartas.length, intentos: 0, inicio: Date.now(), bloqueo: false };
+  zonaMemo.innerHTML = `
+    <div class="memo-barra">
+      <div class="memo-datos"><span id="memoParejas">Parejas: 0 de ${cartas.length}</span><span id="memoIntentos">Intentos: 0</span></div>
+      <button class="boton claro chico" type="button" id="memoOtra">Empezar de nuevo</button>
+    </div>
+    <div class="memo-tablero" id="tablero" style="--cols:${cols}"></div>`;
+  const tablero = document.getElementById("tablero");
+  fichas.forEach((f, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "ficha"; b.dataset.id = f.t.id; b.dataset.tipo = f.tipo;
+    b.setAttribute("aria-label", "Ficha " + (i + 1));
+    const tamH = Math.max(18, Math.min(46, 46 - (largo(f.t.hanzi) - 1) * 9));
+    const cara = f.tipo === "h"
+      ? `<div class="h han" style="font-size:clamp(${Math.round(tamH * .6)}px,${(tamH / 7).toFixed(1)}vw,${tamH}px)">${esc(f.t.hanzi)}</div>`
+      : `<div class="p">${esc(f.t.pinyin)}</div><div class="e">${esc(f.t.es)}</div>`;
+    b.innerHTML = `<div class="giro"><div class="lado lomo han">学</div><div class="lado cara-f">${cara}</div></div>`;
+    b.onclick = () => tocarFicha(b, f);
+    tablero.appendChild(b);
+  });
+  document.getElementById("memoOtra").onclick = pintarMemoInicio;
+}
+
+function tocarFicha(b, f) {
+  if (memo.bloqueo || b.classList.contains("abierta") || b.classList.contains("lista")) return;
+  b.classList.add("abierta");
+  if (f.tipo === "h") hablar(f.t.hanzi);
+  memo.abiertas.push(b);
+  if (memo.abiertas.length < 2) return;
+  memo.intentos++;
+  document.getElementById("memoIntentos").textContent = "Intentos: " + memo.intentos;
+  const [a, c] = memo.abiertas;
+  memo.abiertas = [];
+  if (a.dataset.id === c.dataset.id) {
+    setTimeout(() => {
+      a.classList.add("lista"); c.classList.add("lista");
+      memo.parejas++;
+      document.getElementById("memoParejas").textContent = `Parejas: ${memo.parejas} de ${memo.total}`;
+      if (memo.parejas === memo.total) setTimeout(ganarMemo, 600);
+    }, 350);
+  } else {
+    memo.bloqueo = true;
+    setTimeout(() => { a.classList.add("mal"); c.classList.add("mal"); }, 450);
+    setTimeout(() => {
+      a.classList.remove("abierta", "mal"); c.classList.remove("abierta", "mal");
+      memo.bloqueo = false;
+    }, 1150);
+  }
+}
+function ganarMemo() {
+  const seg = Math.round((Date.now() - memo.inicio) / 1000);
+  const tiempo = seg >= 60 ? `${Math.floor(seg / 60)} min ${seg % 60} s` : `${seg} segundos`;
+  zonaMemo.innerHTML = `<div class="final"><span class="han">赢</span><h3>¡Ganaste!</h3>
+    <p class="sub" style="margin-top:8px">Juntaste ${memo.total} parejas en ${memo.intentos} intentos y ${tiempo}.</p>
+    <button class="boton" type="button" id="memoDeNuevo">Jugar otra vez</button></div>`;
+  document.getElementById("memoDeNuevo").onclick = pintarMemoInicio;
+}
+
+// =====================================================================
+// IMPRIMIR
+// =====================================================================
+const zonaImprimir = document.getElementById("zonaImprimir");
+const PAPELES = { carta: { w: 215.9, h: 279.4, css: "letter" }, a4: { w: 210, h: 297, css: "A4" } };
+const ACOMODOS = { 6: [2, 3], 8: [2, 4], 12: [3, 4] }; // columnas, filas
+const MARGEN = 10; // mm
+let porHoja = 8, papel = "carta";
+
+function cartasParaImprimir() {
+  const todas = tienePlan() ? tarjetas.slice() : disponibles();
+  return todas;
+}
+
+function pintarImprimir() {
+  const cartas = cartasParaImprimir();
+  if (!cartas.length) return sinTarjetas(zonaImprimir, 1);
+  const hojas = Math.ceil(cartas.length / porHoja);
+  const ocultas = !tienePlan() ? tarjetas.length - cartas.length : 0;
+  zonaImprimir.innerHTML = `
+    <div class="opciones">
+      <div class="grupo"><b>Tarjetas por hoja</b>
+        <div class="segmentos" id="segPorHoja">
+          ${[6, 8, 12].map(n => `<button type="button" data-n="${n}" aria-pressed="${n === porHoja}">${n}</button>`).join("")}
+        </div></div>
+      <div class="grupo"><b>Papel</b>
+        <div class="segmentos" id="segPapel">
+          <button type="button" data-p="carta" aria-pressed="${papel === "carta"}">Carta</button>
+          <button type="button" data-p="a4" aria-pressed="${papel === "a4"}">A4</button>
+        </div></div>
+    </div>
+    <p style="margin:0"><b>${cartas.length} tarjeta${cartas.length > 1 ? "s" : ""}</b> → ${hojas * 2} página${hojas * 2 > 1 ? "s" : ""} (${hojas} hoja${hojas > 1 ? "s" : ""} por los dos lados)${ocultas ? ` · <span style="color:#8A5A0B">${ocultas} tarjeta${ocultas > 1 ? "s" : ""} con candado no se imprime${ocultas > 1 ? "n" : ""} sin el plan mensual</span>` : ""}</p>
+
+    <div class="muestra">
+      <figure><div class="hoja-mini" id="muestraFrente"></div>Página 1: frente</figure>
+      <figure><div class="hoja-mini" id="muestraAtras"></div>Página 2: atrás</figure>
+    </div>
+
+    <div class="instrucciones">
+      <h3>Antes de imprimir</h3>
+      <ol>
+        <li>Toca <b>Imprimir o guardar PDF</b>. Si quieres el archivo, en "Destino" o "Impresora" elige <b>Guardar como PDF</b>.</li>
+        <li>En el tamaño o escala elige <b>100%</b> o <b>Tamaño real</b>, no "Ajustar a la página". Si no, las tarjetas no coinciden.</li>
+        <li><b>Si tu impresora imprime por los dos lados:</b> activa "Doble cara" y elige <b>voltear por el lado largo</b>.</li>
+        <li><b>Si no lo hace:</b> imprime solo las páginas impares (1, 3, 5…). Vuelve a meter esas hojas volteadas y imprime las pares (2, 4, 6…). Haz una prueba con una hoja primero para saber de qué lado meterla.</li>
+        <li>Recorta por las líneas punteadas.</li>
+      </ol>
+    </div>
+    <button class="boton" type="button" id="btnImprimir">🖨️ Imprimir o guardar PDF</button>`;
+
+  document.getElementById("segPorHoja").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return; porHoja = +b.dataset.n; pintarImprimir();
+  });
+  document.getElementById("segPapel").addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return; papel = b.dataset.p; pintarImprimir();
+  });
+  pintarMuestra(cartas);
+  document.getElementById("btnImprimir").onclick = () => imprimir(cartas);
+}
+
+// Posición de cada tarjeta. En el reverso las columnas van al revés
+// para que, al voltear la hoja por el lado largo, cada traducción quede detrás de su carácter.
+function posicion(i, cols, atras) {
+  const fila = Math.floor(i / cols);
+  const col = i % cols;
+  return { fila, col: atras ? cols - 1 - col : col };
+}
+
+function pintarMuestra(cartas) {
+  const [cols, filas] = ACOMODOS[porHoja];
+  const primera = cartas.slice(0, porHoja);
+  ["muestraFrente", "muestraAtras"].forEach((id, k) => {
+    const el = document.getElementById(id);
+    const p = PAPELES[papel];
+    el.style.aspectRatio = p.w + "/" + p.h;
+    el.style.gridTemplateColumns = `repeat(${cols},1fr)`;
+    el.style.gridTemplateRows = `repeat(${filas},1fr)`;
+    const celdas = new Array(porHoja).fill("");
+    primera.forEach((t, i) => {
+      const pos = posicion(i, cols, k === 1);
+      celdas[pos.fila * cols + pos.col] = k === 0
+        ? `<span class="h han" style="font-size:${Math.max(9, 26 - largo(t.hanzi) * 4 - (cols - 2) * 5)}px">${esc(t.hanzi)}</span>`
+        : `<span><span class="p" style="font-size:8px;display:block">${esc(t.pinyin)}</span><span style="font-size:7px">${esc(t.es)}</span></span>`;
+    });
+    el.innerHTML = celdas.map(c => `<div>${c}</div>`).join("");
+  });
+}
+
+async function imprimir(cartas) {
+  const [cols, filas] = ACOMODOS[porHoja];
+  const p = PAPELES[papel];
+  const w = (p.w - MARGEN * 2) / cols;
+  const h = (p.h - MARGEN * 2) / filas;
+  document.getElementById("tamanoPagina").textContent =
+    `@page{size:${p.css};margin:0} @media print{.hoja{width:${p.w}mm;height:${p.h}mm}}`;
+
+  let html = "";
+  for (let inicio = 0; inicio < cartas.length; inicio += porHoja) {
+    const grupo = cartas.slice(inicio, inicio + porHoja);
+    [false, true].forEach(atras => {
+      html += `<div class="hoja">`;
+      grupo.forEach((t, i) => {
+        const pos = posicion(i, cols, atras);
+        const n = largo(t.hanzi);
+        const caben = Math.min(h * 0.62, (w * 0.86) / n);
+        const estilo = `left:${MARGEN + pos.col * w}mm;top:${MARGEN + pos.fila * h}mm;width:${w}mm;height:${h}mm`;
+        if (!atras) {
+          html += `<div class="celda" style="${estilo}"><span class="h" style="font-size:${caben.toFixed(1)}mm">${esc(t.hanzi)}</span></div>`;
+        } else {
+          const tamP = Math.min(w * 0.16, h * 0.17, 13);
+          const tamE = Math.min(w * 0.11, h * 0.12, 9);
+          html += `<div class="celda" style="${estilo}">
+            <span class="p" style="font-size:${tamP.toFixed(1)}mm">${esc(t.pinyin)}</span>
+            <span class="e" style="font-size:${tamE.toFixed(1)}mm">${esc(t.es)}</span>
+            <span class="marca">Alonso Laoshi</span></div>`;
+        }
+      });
+      html += `</div>`;
+    });
+  }
+  const hojas = document.getElementById("hojas");
+  hojas.innerHTML = html;
+
+  // Esperar a que cargue la letra china antes de imprimir.
+  hojas.style.cssText = "display:block;position:fixed;left:-9999px;top:0";
+  try {
+    await Promise.race([
+      Promise.all([document.fonts.load('600 40px "Noto Serif SC"', cartas.map(t => t.hanzi).join("")),
+                   document.fonts.load('700 20px "Figtree"')]).then(() => document.fonts.ready),
+      new Promise(r => setTimeout(r, 4000))
+    ]);
+  } catch (e) {}
+  hojas.style.cssText = "";
+
+  document.body.classList.add("imprimiendo");
+  window.print();
+}
+window.addEventListener("afterprint", () => document.body.classList.remove("imprimiendo"));
+
+// =====================================================================
+// INICIO
+// =====================================================================
+function actualizarPlan() {
+  const chip = document.getElementById("planChip");
+  chip.textContent = tienePlan() ? "Versión completa" : "Gratis";
+  chip.classList.toggle("pago", tienePlan());
+  const activa = document.querySelector("[data-tab][aria-selected='true']").dataset.tab;
+  abrirPestana(activa);
+}
+document.getElementById("anio").textContent = new Date().getFullYear();
+cargar();
+actualizarPlan();
+
+/* ==================== Cuenta y suscripción (Acceso Total) ==================== */
+const $=s=>document.querySelector(s);
+const SUS={estado:null,hasta:null};
+const fechaBonita=h=>{try{return new Date(h).toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"})}catch(e){return""}};
+let sb=null,sesion=null;
+try{if(window.supabase&&CFG.supabaseUrl)sb=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseKey)}catch(e){sb=null}
+const tokenDe=()=>sesion&&sesion.access_token;
+let avisoT=0;
+function aviso(txt,ms){const a=$("#vAviso");a.textContent=txt;a.hidden=false;clearTimeout(avisoT);if(ms!==0)avisoT=setTimeout(()=>{a.hidden=true},ms||3500)}
+function pintaCuenta(){
+  const b=$("#btnCuenta");
+  b.textContent=SUSCRITO?"✓ Mi cuenta":(sesion?"⭐ Versión completa":"👤 Entrar");
+  b.classList.toggle("sus",SUSCRITO);
+}
+function ponSus(ok){
+  const antes=SUSCRITO;SUSCRITO=!!ok;
+  try{localStorage.setItem("tarjetasSus",SUSCRITO?"1":"0")}catch(e){}
+  pintaCuenta();
+  if(antes!==SUSCRITO)actualizarPlan();
+}
+async function motor(ruta,op={}){
+  const h=Object.assign({},op.headers||{});const t=tokenDe();if(t)h.Authorization="Bearer "+t;
+  const lento=setTimeout(()=>aviso("Despertando el servidor… la primera vez puede tardar hasta un minuto.",0),2500);
+  try{return await fetch(CFG.motor+ruta,Object.assign({},op,{headers:h}))}
+  finally{clearTimeout(lento);if($("#vAviso").textContent.startsWith("Despertando"))$("#vAviso").hidden=true}
+}
+async function revisarSuscripcion(){
+  if(!sesion){ponSus(false);return}
+  try{const r=await motor("/estado");if(!r.ok)throw 0;const d=await r.json();SUS.estado=d.estado||null;SUS.hasta=d.hasta||null;ponSus(d.suscrito)}
+  catch(e){pintaCuenta()}
+  pintaVenta();
+}
+const vM=$("#vModal"),vMsg=$("#vMsg");
+const msgV=(t,ok)=>{vMsg.textContent=t||"";vMsg.className="vmsg"+(ok?" ok":"")};
+let modoClave=false;
+function pintaVenta(){
+  const conSesion=!!sesion,ok=SUSCRITO;
+  $("#vEntrar").hidden=conSesion||modoClave;$("#vNueva").hidden=!modoClave;
+  $("#vPagar").hidden=!conSesion||ok||modoClave;$("#vListo").hidden=!(conSesion&&ok);
+  $("#vSesion").hidden=!conSesion;$("#vInfo").hidden=conSesion&&ok;
+  $("#vTit").textContent=conSesion&&ok?"Mi cuenta":"Desbloquea todas las aplicaciones";
+  const f=SUS.hasta?fechaBonita(SUS.hasta):"",cancelada=SUS.estado==="cancelada";
+  $("#vFecha").innerHTML=cancelada
+    ?"Tu suscripción está <b>cancelada</b>: ya no se te va a cobrar. Puedes seguir usando todas las aplicaciones"+(f?" hasta el <b>"+f+"</b>":" hasta que termine el mes que pagaste")+"."
+    :"Tu suscripción está activa."+(f?" Próximo cobro: <b>"+f+"</b>.":"");
+  $("#vBCancelar").hidden=cancelada||!SUS.estado;if(cancelada||!SUS.estado)$("#vConfirma").hidden=true;
+  if(conSesion&&sesion.user){$("#vPor").hidden=false;$("#vPor").textContent="Cuenta: "+(sesion.user.email||"")}else $("#vPor").hidden=true;
+  if(conSesion&&!ok&&!modoClave)ponerPaypal();
+}
+function abrirVenta(motivo){
+  msgV(motivo||"");if(!sb)msgV("No se pudo cargar el inicio de sesión. Revisa tu internet y recarga la página.");
+  pintaVenta();vM.hidden=false;fetch(CFG.motor+"/salud").catch(()=>{});
+}
+const cerrarVenta=()=>{vM.hidden=true};
+$("#vCerrar").onclick=cerrarVenta;
+vM.addEventListener("click",e=>{if(e.target===vM)cerrarVenta()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!vM.hidden)cerrarVenta()});
+$("#btnCuenta").onclick=()=>abrirVenta();
+const datosForm=()=>({email:$("#vCorreo").value.trim(),password:$("#vClave").value});
+function revisaForm(d,nueva){
+  if(!/^\S+@\S+\.\S+$/.test(d.email)){msgV("Escribe un correo válido.");return false}
+  if(!d.password){msgV("Escribe tu contraseña.");return false}
+  if(nueva&&d.password.length<6){msgV("La contraseña debe tener al menos 6 letras o números.");return false}
+  return true;
+}
+const traduce=m=>/Invalid login/i.test(m)?"Correo o contraseña incorrectos."
+  :/already registered|already exists/i.test(m)?"Ese correo ya tiene cuenta. Usa “Entrar”."
+  :/Email not confirmed/i.test(m)?"Falta confirmar tu correo: revisa tu bandeja (y spam) y da clic en el enlace."
+  :/rate limit|security purposes/i.test(m)?"Espera un minuto y vuelve a intentar.":m;
+$("#vBEntrar").onclick=async()=>{const d=datosForm();if(!sb||!revisaForm(d))return;msgV("Entrando…",true);
+  const {error}=await sb.auth.signInWithPassword(d);if(error)msgV(traduce(error.message));else msgV("")};
+$("#vBCrear").onclick=async()=>{const d=datosForm();if(!sb||!revisaForm(d,true))return;msgV("Creando tu cuenta…",true);
+  const {data,error}=await sb.auth.signUp({email:d.email,password:d.password,options:{emailRedirectTo:location.origin+location.pathname}});
+  if(error)return msgV(traduce(error.message));
+  if(!data.session)msgV("Te mandamos un correo para confirmar tu cuenta. Da clic en el enlace y luego entra aquí.",true)};
+$("#vOlvide").onclick=async()=>{const email=$("#vCorreo").value.trim();
+  if(!/^\S+@\S+\.\S+$/.test(email))return msgV("Escribe tu correo arriba y vuelve a dar clic aquí.");if(!sb)return;
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  msgV(error?traduce(error.message):"Te mandamos un correo para cambiar tu contraseña.",!error)};
+$("#vBGuardar").onclick=async()=>{const p=$("#vClave2").value;
+  if(!p||p.length<6)return msgV("La contraseña debe tener al menos 6 letras o números.");
+  const {error}=await sb.auth.updateUser({password:p});if(error)return msgV(traduce(error.message));
+  modoClave=false;msgV("✓ Contraseña cambiada.",true);pintaVenta()};
+$("#vBSalir").onclick=async()=>{if(sb)await sb.auth.signOut();msgV("")};
+$("#vBCancelar").onclick=()=>{const f=SUS.hasta?fechaBonita(SUS.hasta):"";
+  $("#vConfirmaTxt").innerHTML="<b>¿Seguro que quieres cancelar?</b> Se cancela en todas las aplicaciones. Ya no se te cobrará, y las conservas"+(f?" hasta el "+f:" hasta que termine el mes que pagaste")+".";
+  $("#vConfirma").hidden=false;$("#vBCancelar").hidden=true;msgV("")};
+$("#vBNo").onclick=()=>{$("#vConfirma").hidden=true;$("#vBCancelar").hidden=false};
+$("#vBSi").onclick=async()=>{const b=$("#vBSi");b.disabled=true;msgV("Cancelando…",true);
+  try{const r=await motor("/cancelar",{method:"POST"});const j=await r.json().catch(()=>({}));
+    if(!r.ok){msgV(j.detail||"No se pudo cancelar. Intenta de nuevo en unos minutos.");return}
+    SUS.estado="cancelada";SUS.hasta=j.hasta||SUS.hasta;$("#vConfirma").hidden=true;pintaVenta();
+    const f=SUS.hasta?fechaBonita(SUS.hasta):"";
+    msgV("✓ Tu suscripción quedó cancelada."+(f?" Puedes seguir usando todas las aplicaciones hasta el "+f+".":""),true)}
+  catch(e){msgV("No se pudo conectar. Revisa tu internet e intenta de nuevo.")}
+  finally{b.disabled=false}};
+let ppEstado=0,planTotal="";
+async function ponerPaypal(){
+  if(ppEstado)return;ppEstado=1;
+  try{const r=await motor("/planes");const j=await r.json();planTotal=j.total||""}catch(e){}
+  if(!CFG.paypalClientId||!/^P-/.test(planTotal)){ppEstado=0;msgV("La suscripción estará disponible muy pronto.");return}
+  const s=document.createElement("script");
+  s.src="https://www.paypal.com/sdk/js?client-id="+encodeURIComponent(CFG.paypalClientId)+"&vault=true&intent=subscription&locale=es_MX";
+  s.onerror=()=>{ppEstado=0;msgV("No se pudo cargar PayPal. Revisa tu internet y vuelve a abrir esta ventana.")};
+  s.onload=()=>{ppEstado=2;
+    window.paypal.Buttons({style:{shape:"pill",label:"subscribe"},
+      createSubscription:(d,a)=>a.subscription.create({plan_id:planTotal,custom_id:sesion.user.id,
+        application_context:{brand_name:"Alonso Laoshi",shipping_preference:"NO_SHIPPING"}}),
+      onApprove:async d=>{msgV("Activando tu versión completa…",true);
+        try{const r=await motor("/paypal/confirmar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id_suscripcion:d.subscriptionID})});
+          const j=await r.json().catch(()=>({}));
+          if(r.ok){SUS.estado="activa";SUS.hasta=null;ponSus(true);msgV("");pintaVenta();aviso("✓ ¡Listo! Ya tienes todas las tarjetas desbloqueadas.");revisarSuscripcion()}
+          else msgV((j.detail||"No se pudo activar todavía.")+" Si ya pagaste, se activará sola en unos minutos.")}
+        catch(e){msgV("Tu pago se hizo, pero no pudimos activarla todavía. Se activará sola en unos minutos; recarga la página.");setTimeout(revisarSuscripcion,60000)}},
+      onError:()=>msgV("Hubo un problema con PayPal. No se hizo ningún cargo; intenta de nuevo.")
+    }).render("#vPaypal")};
+  document.head.appendChild(s);
+}
+if(sb){
+  sb.auth.onAuthStateChange((ev,s)=>{
+    sesion=s;
+    if(ev==="PASSWORD_RECOVERY"){modoClave=true;abrirVenta("")}
+    if(ev==="SIGNED_OUT"){SUS.estado=SUS.hasta=null;ponSus(false)}
+    if(ev==="SIGNED_IN"||ev==="INITIAL_SESSION"||ev==="TOKEN_REFRESHED"){if(s)revisarSuscripcion();else ponSus(false)}
+    pintaCuenta();if(!vM.hidden)pintaVenta();
+  });
+}else ponSus(false);
+pintaCuenta();
+</script>
+</body>
+</html>

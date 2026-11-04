@@ -169,6 +169,12 @@ section{scroll-margin-top:70px}
 /* vitrina: mapa */
 .v-mapa{position:relative;width:220px;height:170px}
 .v-mapa svg{width:100%;height:100%}
+.v-tarj{position:relative;width:250px;height:170px}
+.v-tarj .tj{position:absolute;width:118px;height:150px;border-radius:12px;border:3px solid #F0D38C;display:grid;place-items:center;align-content:center;box-shadow:0 10px 22px rgba(0,0,0,.35)}
+.v-tarj .frente{left:0;top:8px;background:#FFFCF6;color:#8E1616;font-size:40px;font-weight:900;transform:rotate(-7deg)}
+.v-tarj .atras{right:0;top:14px;background:linear-gradient(160deg,#8E1616,#5E0C0E);color:#fff;transform:rotate(6deg);text-align:center}
+.v-tarj .atras .p{font:700 19px "Figtree",sans-serif;color:#F0D38C}
+.v-tarj .atras .e{font:500 14px "Figtree",sans-serif;color:#F7E2D4}
 .v-stk{position:relative;width:240px;height:150px}
 .v-stk .fondo{width:100%;height:100%;object-fit:cover;border-radius:10px;border:3px solid #F0D38C;box-shadow:0 8px 18px rgba(0,0,0,.35)}
 .v-stk .s{position:absolute;filter:drop-shadow(0 4px 4px rgba(0,0,0,.35))}
@@ -464,6 +470,22 @@ body.entrando{overflow:hidden}
           <div class="etiqueta" aria-hidden="true"><b>Gratis</b><span>pruébala</span></div>
         </article>
 
+        <!-- Tarjetas -->
+        <article class="app">
+          <div class="vitrina" aria-hidden="true">
+            <div class="v-tarj">
+              <div class="tj atras"><div class="p">xuéxí</div><div class="e">estudiar</div></div>
+              <div class="tj frente han">学习</div>
+            </div>
+          </div>
+          <div class="cuerpo">
+            <div class="cabeza"><h3>Tarjetas Chinas</h3><span class="estado" data-estado="tarjetas"><i></i><span>Revisando…</span></span></div>
+            <p class="que">Haz tus propias tarjetas de estudio: escribe la palabra y sale con sus trazos de colores, pinyin, traducción y audio. Estúdialas volteándolas, juega memorama con ellas e imprímelas para recortar.</p>
+            <a class="boton" href="tarjetas/" data-app="tarjetas" data-nombre="Tarjetas Chinas">Empezar gratis</a>
+          </div>
+          <div class="etiqueta" aria-hidden="true"><b>Gratis</b><span>pruébala</span></div>
+        </article>
+
         <!-- Mapa -->
         <article class="app">
           <div class="vitrina" aria-hidden="true">
@@ -611,6 +633,7 @@ body.entrando{overflow:hidden}
       <h4>Aplicaciones</h4>
       <ul>
         <li><a href="https://trazos-chinos.onrender.com" data-app="trazos" data-nombre="Trazos Chinos">Trazos Chinos</a></li>
+        <li><a href="tarjetas/" data-app="tarjetas" data-nombre="Tarjetas Chinas">Tarjetas Chinas</a></li>
         <li><a href="https://mapa-chino.onrender.com" data-app="mapa" data-nombre="el Mapa del mundo en chino">Mapa del mundo en chino</a></li>
         <li><a href="https://certificado-nombre-chino.onrender.com" data-app="certificado" data-nombre="el Certificado de Nombre Chino">Certificado de Nombre Chino</a></li>
         <li><a href="stickers/" data-app="stickers" data-nombre="Stickers Chinos">Stickers Chinos</a></li>
@@ -670,6 +693,7 @@ const DESPERTAR = {
   trazos:    ["https://trazos-chinos.onrender.com/salud"],
   mapa:      ["https://mapa-chino.onrender.com/", "https://mapa-chino-motor.onrender.com/"],
   certificado: ["https://certificado-nombre-chino.onrender.com/"],
+  tarjetas:  ["tarjetas/"],
   stickers:  ["stickers/"],
 };
 
